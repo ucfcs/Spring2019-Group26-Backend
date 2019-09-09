@@ -51,10 +51,10 @@ def delete_module():
 
 
 @module.route('/module', methods=['PUT'])
-def edit_module(body, module_id):  # noqa: E501
+def edit_module():
     """Edit an existing module
 
-    An admin will be able to edit existing learning modules. # noqa: E501
+    An admin will be able to edit existing learning modules.
 
     :param body: The module object that the admin wants to edit
     :type body: dict | bytes
@@ -63,9 +63,7 @@ def edit_module(body, module_id):  # noqa: E501
 
     :rtype: None
     """
-    if connexion.request.is_json:
-        body = FullModule.from_dict(connexion.request.get_json())  # noqa: E501
-    return 'do some magic!'
+    pass
 
 
 @module.route('/module', methods=['GET'])
