@@ -7,8 +7,7 @@ Python 3.0+
 ## Usage
 Recommend using virtualenv to manage your environment:
 ```
-apt-get install python3-venv
-virtualenv -p python3 myenv
+python3 -m venv venv
 source myenv/bin/activate
 ```
 
