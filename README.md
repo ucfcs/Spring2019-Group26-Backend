@@ -4,21 +4,29 @@ ASL Tutor project for senior design group 26
 ## Requirements
 Python 3.0+
 
-## Usage
-Recommend using virtualenv to manage your environment:
+## Install
+Install virtual box and vagrant
+
+Make a directory and clone the repo into it
+
+From the terminal 'cd' into the project root (you should see a `Vagrantfile`) then run the following commands:
+```bash
+vagrant up
+```
+
+Install virtualenv to manage your environment:
 ```
 python3 -m venv venv
 source myenv/bin/activate
 ```
 
-To run the server, please execute the following from the root directory:
-
+To run the server, please execute the following from the project root directory:
 ```
 pip3 install -r requirements.txt
 python3 -m app
 ```
 
-requests will be directed to here:
+Requests will be directed to here:
 
 ```
 http://localhost:1337/
@@ -28,13 +36,6 @@ http://localhost:1337/
 ```
 sudo pip install tox
 tox
-```
-
-## Running with Vagrant
-
-If running with Vagrant be sure to enable port forwarding in your Vagrantfile like so:
-```
-config.vm.network "forwarded_port", guest: 5000, host: 1337, host_ip: "127.0.0.1"
 ```
 
 ## Running with Docker
