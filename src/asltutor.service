@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve myproject
+After=network.target
+
+[Service]
+User=vagrant
+Group=www-data
+WorkingDirectory=/home/vagrant/Spring2019-Group26-Backend/src/asltutor
+Environment="PATH=/home/vagrant/Spring2019-Group26-Backend/src/asltutor/venv/bin"
+ExecStart=/home/vagrant/Spring2019-Group26-Backend/src/asltutor/venv/bin/uwsgi --ini asltutor.ini
+
+[Install]
+WantedBy=multi-user.target
