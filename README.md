@@ -1,8 +1,11 @@
-## Spring2019-Group26-Backend
-ASL Tutor project for senior design group 26
+# Spring2019-Group26-Backend
+This repository holds the REST API for Group 26's ASL Tutor as well as the admin web portal.
 
 ## Requirements
-Python 3.0+
+* Python 3.0+
+* Vagrant
+* Virtual Box
+* Docker
 
 ## Install
 Install virtual box and vagrant
@@ -10,30 +13,33 @@ Install virtual box and vagrant
 Make a directory and clone the repo into it
 
 From the terminal 'cd' into the project root (you should see a `Vagrantfile`) then run the following commands:
+
 ```bash
 vagrant up
+vagrant ssh
 ```
 
 Install virtualenv to manage your environment:
-```
+
+```bash
 python3 -m venv venv
-source myenv/bin/activate
+source venv/bin/activate
 ```
 
-To run the server, please execute the following from the project root directory:
-```
+To run the server, execute the following from the project root directory:
+
+```bash
+cd src
+pip3 install wheel
 pip3 install -r requirements.txt
 python3 -m app
 ```
 
-Requests will be directed to here:
-
-```
-http://localhost:1337/
-```
+Requests will be directed to `http://localhost:1337/`
 
 [Not yet enabled] To launch the integration tests, use tox:
-```
+
+```bash
 sudo pip install tox
 tox
 ```
