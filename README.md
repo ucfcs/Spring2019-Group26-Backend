@@ -17,6 +17,7 @@ From the terminal 'cd' into the project root (you should see a `Vagrantfile`) th
 ```bash
 vagrant up
 vagrant ssh
+cd /vagrant
 ```
 
 Install virtualenv to manage your environment:
