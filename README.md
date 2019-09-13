@@ -2,7 +2,7 @@
 This repository holds the REST API for Group 26's ASL Tutor as well as the admin web portal.
 
 ## Requirements
-* Python 3.0+
+* Python 3.7+
 * Vagrant
 * Virtual Box
 * Docker
@@ -19,20 +19,16 @@ vagrant up
 vagrant ssh
 ```
 
-Install virtualenv to manage your environment:
+## To run the server
 
+From the terminal 'cd' into the project Spring2019-Group26 and run the following commands:
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+chmod +x deploy.sh
+./deploy.sh
 ```
-
-To run the server, execute the following from the project root directory:
-
+If you make changes and they do not automatically take affect run:
 ```bash
-cd src
-pip3 install wheel
-pip3 install -r requirements.txt
-python3 -m app
+./deploy.sh
 ```
 
 Requests will be directed to `http://localhost:1337/`
