@@ -22,4 +22,3 @@ class Dictionary(Document):
     url = db.URLField(unique=True)
     in_dictionary = db.BooleanField(default=False)
     times_requested = db.IntField()
-

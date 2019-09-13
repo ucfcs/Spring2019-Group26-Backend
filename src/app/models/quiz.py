@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 from app.database import db
-from mongoengine import CASCADE
 import flask_mongoengine as fm
 import mongoengine_goodjson as gj
+from app.models.dictionary import Dictionary
 
 
 class QuerySet(fm.BaseQuerySet, gj.QuerySet):
@@ -27,6 +27,4 @@ class Quiz(Document):
 
 class Question(Document):
     question_text = db.StringField(max_length=500)
-    url = db.URLField()
-    answer_bank = db.ListField(db.StringField(max_length=20))
-    correct_index = db.IntField()
+    word = gj.FollowReferenceField(Dictionary)
