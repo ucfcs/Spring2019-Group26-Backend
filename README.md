@@ -32,6 +32,24 @@ If you make changes and they do not automatically take affect run:
 ./deploy.sh
 ```
 
+The `deploy.sh` does not install MongoDB at this time. Run the following to install MongoDB:
+```bash
+wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
+echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+```
+
+Start MongoDB with:
+```bash
+sudo service mongod start
+```
+
+You can confirm it's running with:
+```bash
+sudo service mongod status
+```
+
 Requests will be directed to `http://localhost:1337/`
 
 [Not yet enabled] To launch the integration tests, use tox:
