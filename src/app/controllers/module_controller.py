@@ -43,7 +43,6 @@ def delete_module():
         o = Module.objects.get_or_404(id=input_)
     else:
         o = Module.objects.get_or_404(module_name=input_)
-        print(o.quiz)
     for e in o.quiz:
         e.delete()
     o.delete()
@@ -56,14 +55,20 @@ def edit_module():
 
     An admin will be able to edit existing learning modules.
 
-    :param body: The module object that the admin wants to edit
-    :type body: dict | bytes
-    :param module_id: The module Id of the module a user wants.
-    :type module_id: str
+    query parameter: /module?input=input
+    input can be an objectId or a module name
 
     :rtype: None
     """
-    pass
+    input_ = request.args.get('input')
+    if ObjectId.is_valid(input_):
+        o = Module.objects.get_or_404(id=input_)
+    else:
+        o = Module.objects.get_or_404(module_name=input_)
+
+    if request.content_type == 'application/json':
+        r = request.get_json()
+    return Response('Success', 200)
 
 
 @module.route('/module', methods=['GET'])
@@ -78,10 +83,11 @@ def get_module():
     :rtype: json
     """
     # check if a specific object Id was provided
-    if 'oid' in request.args:
+    if 'input' in request.args:
+        input_ = request.args.get('input')
         # get the module object given a specific module Id
-        if ObjectId.is_valid(oid):
-            return Response(Module.objects.get_or_404(id=oid).to_json(), mimetype='application/json')
+        if ObjectId.is_valid(input_):
+            return Response(Module.objects.get_or_404(id=input_).to_json(), mimetype='application/json')
         return Response('Failed: invalid Id', 400)
 
     # Otherwise get a list of all modules available to the user.
