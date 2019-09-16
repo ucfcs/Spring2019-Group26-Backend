@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-from app.database import db
+from asltutor.database import db
 import argparse
-from app.models.module import Module
-from app.models.quiz import Quiz, Question
-from app.models.dictionary import Dictionary
-from app.models.submission import Submission, UserAnswers
-from app.models.user import User, Completed_Modules
+from asltutor.models.module import Module
+from asltutor.models.quiz import Quiz, Question
+from asltutor.models.dictionary import Dictionary
+from asltutor.models.submission import Submission, UserAnswers
+from asltutor.models.user import User, Completed_Modules
 from datetime import datetime
 from passlib.hash import pbkdf2_sha256
 import traceback
@@ -19,7 +19,10 @@ Everything added will be in the correct format.
 
 usage:
 chmod +x db_util.py
-./db_util.py
+source asltutor/venv/bin/activate
+./db_util.py -h
+
+run deactivate to exit venv
 """
 
 # create DB

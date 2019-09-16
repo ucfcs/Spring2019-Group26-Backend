@@ -25,8 +25,8 @@ class Completed_Modules(db.EmbeddedDocument):
     module_name = db.StringField(max_length=20)
 
 
-class User(db.Document, UserMixin):
-    username = db.StringField(required=True, max_length=20)
+class User(Document, UserMixin):
+    username = db.StringField(required=True, max_length=20, unique=True)
     firstname = db.StringField(max_length=20)
     lastname = db.StringField(max_length=20)
     dob = db.DateTimeField(required=True)
@@ -38,6 +38,9 @@ class User(db.Document, UserMixin):
     completed_modules = db.ListField(
         db.EmbeddedDocumentField(Completed_Modules))
 
-    def __init__(self, creation_date, username):
-        self.creation_date = datetime.utcnow()
-        self.username = username
+    def __init__(self, *args, **kwargs):
+        super(Document, self).__init__(*args, **kwargs)
+        self.creation_date = datetime.now()
+
+    def get_id(self):
+        return self.id
