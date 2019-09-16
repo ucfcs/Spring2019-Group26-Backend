@@ -24,7 +24,7 @@ vagrant ssh
 From the terminal 'cd' into the project Spring2019-Group26 and run the following commands:
 ```bash
 sudo systemctl start mongod
-cd /Spring2019-Group26-Backend
+cd ~/Spring2019-Group26-Backend
 chmod +x deploy.sh
 ./deploy.sh
 ```
