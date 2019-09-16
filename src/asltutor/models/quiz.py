@@ -27,6 +27,4 @@ class Quiz(Document):
 
 class Question(Document):
     question_text = db.StringField(max_length=500)
-    url = db.URLField()
-    answer_bank = db.ListField(db.StringField(max_length=20))
-    correct_index = db.IntField()
+    word = gj.FollowReferenceField(Dictionary)

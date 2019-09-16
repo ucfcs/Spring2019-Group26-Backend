@@ -3,6 +3,21 @@ from flask_login import UserMixin
 from asltutor.database import db
 from asltutor.models.module import Module
 from datetime import datetime
+import flask_mongoengine as fm
+import mongoengine_goodjson as gj
+
+
+class QuerySet(fm.BaseQuerySet, gj.QuerySet):
+    """Queryset."""
+    pass
+
+
+class Document(db.Document, gj.Document):
+    """Document."""
+    meta = {
+        'abstract': True,
+        'queryset_class': QuerySet
+    }
 
 
 class Completed_Modules(db.EmbeddedDocument):
