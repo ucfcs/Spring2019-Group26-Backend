@@ -3,6 +3,7 @@ from asltutor.database import db
 from mongoengine import CASCADE
 import flask_mongoengine as fm
 import mongoengine_goodjson as gj
+from asltutor.models.dictionary import Dictionary
 
 
 class QuerySet(fm.BaseQuerySet, gj.QuerySet):
