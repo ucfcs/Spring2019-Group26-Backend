@@ -1,8 +1,8 @@
 from __future__ import absolute_import
-from app.database import db
-from app.models.user import User
-from app.models.quiz import Quiz, Question
-from app.models.module import Module
+from asltutor.database import db
+from asltutor.models.user import User
+from asltutor.models.quiz import Quiz, Question
+from asltutor.models.module import Module
 from mongoengine import CASCADE
 from datetime import datetime
 import flask_mongoengine as fm

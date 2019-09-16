@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from app.database import db
+from asltutor.database import db
 import flask_mongoengine as fm
 import mongoengine_goodjson as gj
 

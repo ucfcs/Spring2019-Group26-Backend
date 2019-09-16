@@ -1,4 +1,4 @@
-from app.models.quiz import Quiz, Question
+from asltutor.models.quiz import Quiz, Question
 from flask import Blueprint
 from flask import request, Response
 from bson import ObjectId
@@ -69,7 +69,7 @@ def delete_quiz():
 
     :rtype: none
     """
-    qid = request.args.get('input')
+    qid = request.args.get('qid')
     if ObjectId.is_valid(qid):
         q = Quiz.objects.get_or_404(id=qid)
         for e in q.questions:
@@ -90,7 +90,7 @@ def edit_quiz():
 
     :rtype: None
     """
-    qid = request.args.get('input')
+    qid = request.args.get('qid')
     q = Quiz.objects.get_or_404(id=qid)
 
     # check if request type is correct
@@ -113,7 +113,7 @@ def get_quiz():
     :rtype: json
     """
     # TODO: make an better serializer the JSON works better
-    qid = request.args.get('input')
+    qid = request.args.get('qid')
     if ObjectId.is_valid(qid):
         quiz = Quiz.objects.get_or_404(id=qid)
         return Response(quiz.to_json(), 200, mimetype='application/json')

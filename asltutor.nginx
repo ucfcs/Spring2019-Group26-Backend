@@ -1,0 +1,9 @@
+server{
+	listen 80;
+	server_name _;
+
+	location / {
+		include uwsgi_params;
+		uwsgi_pass unix:/home/ubuntu/Spring2019-Group26-Backend/src/asltutor/asltutor.sock;
+	}
+}

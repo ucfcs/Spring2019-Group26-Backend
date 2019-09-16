@@ -1,8 +1,8 @@
 from __future__ import absolute_import
-from app.database import db
+from asltutor.database import db
+from mongoengine import CASCADE
 import flask_mongoengine as fm
 import mongoengine_goodjson as gj
-from app.models.dictionary import Dictionary
 
 
 class QuerySet(fm.BaseQuerySet, gj.QuerySet):
