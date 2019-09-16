@@ -17,13 +17,14 @@ From the terminal 'cd' into the project root (you should see a `Vagrantfile`) th
 ```bash
 vagrant up
 vagrant ssh
-cd /vagrant
 ```
 
 ## To run the server
 
 From the terminal 'cd' into the project Spring2019-Group26 and run the following commands:
 ```bash
+sudo systemctl start mongod
+cd /Spring2019-Group26-Backend
 chmod +x deploy.sh
 ./deploy.sh
 ```
@@ -32,22 +33,24 @@ If you make changes and they do not automatically take affect run:
 ./deploy.sh
 ```
 
-The `deploy.sh` does not install MongoDB at this time. Run the following to install MongoDB:
+
+You can confirm everything is running with running with:
 ```bash
-wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
-echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
-sudo apt-get update
-sudo apt-get install -y mongodb-org
+sudo systemctl status mongod
+sudo systemctl status asltutor
 ```
 
-Start MongoDB with:
+If either is not running make sure mongo is up before starting or restarting asltutor
+To start
 ```bash
-sudo service mongod start
+sudo systemctl start mongod
+sudo systemctl start asltutor
 ```
 
-You can confirm it's running with:
+or restart
 ```bash
-sudo service mongod status
+sudo systemctl restart mongod
+sudo systemctl restart asltutor
 ```
 
 Requests will be directed to `http://localhost:1337/`
