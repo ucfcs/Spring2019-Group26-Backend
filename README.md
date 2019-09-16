@@ -33,7 +33,6 @@ If you make changes and they do not automatically take affect run:
 ./deploy.sh
 ```
 
-
 You can confirm everything is running with running with:
 ```bash
 sudo systemctl status mongod
@@ -52,6 +51,8 @@ or restart
 sudo systemctl restart mongod
 sudo systemctl restart asltutor
 ```
+
+If things are not working verify mongod and asltutor are running. You most likely will have to restart asltutor if you are having issues.
 
 Requests will be directed to `http://localhost:1337/`
 
