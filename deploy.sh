@@ -1,5 +1,7 @@
 # TODO: add checks to verify commands
 
+sudo systemctl start mongod
+sleep 40
 cd ~/Spring2019-Group26-Backend/src/asltutor
 #remove venv if one already exist
 rm -rf venv
