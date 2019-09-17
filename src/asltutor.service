@@ -2,7 +2,7 @@
 
 [Unit]
 Description=uWSGI instance to serve asltutor api
-After=network.target
+After=network.target mongod.service
 
 [Service]
 User=vagrant
