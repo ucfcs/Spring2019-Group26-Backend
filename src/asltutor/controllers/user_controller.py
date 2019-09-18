@@ -1,11 +1,21 @@
 from asltutor.models.user import User
-from asltutor import util, login_manager
-
+from asltutor import login_manager
+from flask import current_app as app
+from flask_mongoengine import MongoEngine
 from bson import ObjectId
-from datetime import date, datetime
+import datetime
+from flask import request, Response, jsonify
+from flask import Blueprint
+from passlib.hash import pbkdf2_sha256
+from flask_login import login_user
+import jwt
 
 
-def create_user(body):
+user = Blueprint('user', __name__)
+
+
+@user.route('/user/create', methods=['POST'])
+def create_user():
     """Create user
 
     Create and register a new user
@@ -15,13 +25,24 @@ def create_user(body):
 
     :rtype: None
     """
-    pass
+    if request.is_json is None:
+        return Response('Failed: Content must be json', 400)
+
+    r = request.get_json()
+    newUser = User(**r)
+    try:
+        newUser.save()
+    except mongoengine.errors.NotUniqueError as e:
+        for field in User._fields:
+            if field in str(e):
+                return Response('Failed: field {} is already taken'.format(field), 400)
+    return Response('Success', 200)
 
 
 def delete_user():
     """Delete a user
 
-    Delete a the specified user and all information corresponding to that user from the database.
+    Delete the specified user and all information corresponding to that user from the database.
 
     :param username: The username of the user to be deleted
     :type username: str
@@ -58,7 +79,9 @@ def get_user_info():
     """
     pass
 
-def login_user():
+
+@user.route('/user/login', methods=['POST'])
+def login():
     """Logs user into the system
 
     :param body:
@@ -66,7 +89,21 @@ def login_user():
 
     :rtype: str
     """
-    pass
+    if request.is_json is None:
+        return Response('Failed: Content must be json', 400)
+    content = request.get_json()
+    username = content['username']
+    password = content['password']
+    isUser = User.objects.get(username=username)
+    # validation, is this a valid user and is this their password
+    if not isUser and not pbkdf2_sha256.verify(password, isUser.password):
+        return Response('Failed: Credentials are wrong', 400)
+    # return a JWT token if they are validated
+    token = jwt.encode({'public_id': isUser.get_id(), 'exp': datetime.datetime.utcnow(
+    ) + datetime.timedelta(days=7)}, app.config['SECRET_KEY'])
+    isUser.last_login = datetime.datetime.now()
+    isUser.save()
+    return jsonify({'token': token.decode('UTF-8')})
 
 
 def logout_user():
