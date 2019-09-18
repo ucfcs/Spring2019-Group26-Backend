@@ -90,7 +90,7 @@ chmod +x runuwsgi.sh
 3. Follow the commands for front end to test deployment and operation\
     **<span style="color:red">Always test using the deployment script before making a PR</span>**
 ---
-# Trouble shooting errors
+# Troubleshooting errors
 If you are getting an internal server error or you can hit `hello world` but nothing else   the most likely cause is mongo has not been started or was not running before asltutor started
 
 ## To start diagnosing the problem we start by checking mongo
