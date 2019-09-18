@@ -15,6 +15,8 @@ Make a directory and clone the repo into it
 ---
 # Running the server
 
+For all methods requests will be directed to `http://localhost:1337/`
+
 ## Build/Start the vagrant box and login
 From the terminal `cd` into the project root (you should see a `Vagrantfile`) then run the following commands:
 
