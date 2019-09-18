@@ -68,24 +68,24 @@ chmod +x runuwsgi.sh
 ./runuwsgi.sh
 ```
 
-    After the first time running it using uwsgi control it using systemd
-    - To stop:
-    ```bash
-    sudo systemctl stop asltutor
-    ```
-    - To start:
-    ```bash
-    sudo systemctl start asltutor
-    ```
-    - To restart:
-    ```bash
-    sudo systemctl restart asltutor
-    ```
-    - To check status run respectively:
-    ```bash
-    sudo systemctl status mongod
-    sudo systemctl status asltutor
-    ```
+After the first time running it using uwsgi control it using systemd
+- To stop:
+```bash
+sudo systemctl stop asltutor
+```
+- To start:
+```bash
+sudo systemctl start asltutor
+```
+- To restart:
+```bash
+sudo systemctl restart asltutor
+```
+- To check status run respectively:
+```bash
+sudo systemctl status mongod
+sudo systemctl status asltutor
+```
 
 3. Follow the commands for front end to test deployment and operation\
     **<span style="color:red">Always test using the deployment script before making a PR</span>**
