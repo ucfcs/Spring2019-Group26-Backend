@@ -9,6 +9,7 @@ from flask import Blueprint
 from passlib.hash import pbkdf2_sha256
 from flask_login import login_user
 import jwt
+from mongoengine.errors import NotUniqueError
 
 
 user = Blueprint('user', __name__)
@@ -32,7 +33,7 @@ def create_user():
     newUser = User(**r)
     try:
         newUser.save()
-    except mongoengine.errors.NotUniqueError as e:
+    except NotUniqueError as e:
         for field in User._fields:
             if field in str(e):
                 return Response('Failed: field {} is already taken'.format(field), 400)
