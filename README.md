@@ -23,11 +23,13 @@ vagrant ssh
 
 From the terminal 'cd' into the project Spring2019-Group26 and run the following commands:
 ```bash
-sudo systemctl start mongod
 cd ~/Spring2019-Group26-Backend
 chmod +x deploy.sh
 ./deploy.sh
 ```
+The deploy script will seem like it is hanging, there 40 second wait to make sure 
+mongo is started
+
 If you make changes and they do not automatically take affect run:
 ```bash
 ./deploy.sh
@@ -55,6 +57,10 @@ sudo systemctl restart asltutor
 If things are not working verify mongod and asltutor are running. You most likely will have to restart asltutor if you are having issues.
 
 Requests will be directed to `http://localhost:1337/`
+
+Server logs locations
+request logs: `/tmp/reqlog`
+error logs: `/tmp/errlog`
 
 [Not yet enabled] To launch the integration tests, use tox:
 
