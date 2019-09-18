@@ -29,6 +29,7 @@ class User(Document, UserMixin):
     username = db.StringField(required=True, max_length=20, unique=True)
     firstname = db.StringField(max_length=20)
     lastname = db.StringField(max_length=20)
+    public_id = db.StringField(max_length=50,unique=True)
     dob = db.DateTimeField(required=True)
     creation_date = db.DateTimeField()
     last_login = db.DateTimeField()

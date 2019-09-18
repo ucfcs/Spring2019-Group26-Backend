@@ -2,7 +2,9 @@
 
 from flask import Flask
 from asltutor import settings, database, login_manager
+import jwt
 from mongoengine import *
+
 
 
 app = Flask(__name__)
@@ -13,7 +15,9 @@ app.config.from_object(settings.DevelopmentConfig)
 database.db.init_app(app)
 
 # Flask Security
+#not sure when this will actually end up used, for now using JWT
 login_manager.lm.init_app(app)
+
 
 
 @app.route('/')
@@ -32,8 +36,8 @@ def hello():
 from asltutor.controllers.dictionary_controller import dictionary
 app.register_blueprint(dictionary, url_prefix='/v1')
 
-# from asltutor.controllers.user_controller import user
-# app.register_blueprint(user, url_prefix='/v1')
+from asltutor.controllers.user_controller import user
+app.register_blueprint(user, url_prefix='/v1')
 
 from asltutor.controllers.quiz_controller import quiz
 app.register_blueprint(quiz, url_prefix='/v1')
