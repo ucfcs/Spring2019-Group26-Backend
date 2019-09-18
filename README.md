@@ -62,6 +62,11 @@ Server logs locations
 request logs: `/tmp/reqlog`
 error logs: `/tmp/errlog`
 
+While developing, for changes in the backend code to be reflected in the app you will have to restart the app
+```bash
+sudo systemctl restart asltutor
+``` 
+
 [Not yet enabled] To launch the integration tests, use tox:
 
 ```bash
