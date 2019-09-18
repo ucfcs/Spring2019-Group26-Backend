@@ -12,6 +12,8 @@ from passlib.hash import pbkdf2_sha256
 import traceback
 import pprint
 import json
+import uuid
+import jwt
 
 """
 Used to add fake stuff to the database for testing.
@@ -169,7 +171,7 @@ def add_all():
         mod_1.number_of_words = len(mod_1.words)
         mod_1.save()
 
-        user_1 = User(username='baba_yaga', firstname='jon', lastname='wick', dob='1964-09-02',
+        user_1 = User(username='baba_yaga', firstname='jon', lastname='wick', public_id=str(uuid.uuid4()), dob='1964-09-02',
                       email='babayaga64@gmail.com', password=pbkdf2_sha256.hash('willkillugood'), last_login=str(datetime.now()))
         user_1.creation_date = '2019-09-13 15:47:18.171396'
         comp1 = Completed_Modules(
