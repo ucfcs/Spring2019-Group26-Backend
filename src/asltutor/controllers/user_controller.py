@@ -4,14 +4,16 @@ from flask import current_app as app
 from flask_mongoengine import MongoEngine
 from bson import ObjectId
 import datetime
-from flask import request, Response,jsonify
+from flask import request, Response, jsonify
 from flask import Blueprint
 from passlib.hash import pbkdf2_sha256
 from flask_login import login_user
-import uuid
 import jwt
 
+
 user = Blueprint('user', __name__)
+
+
 @user.route('/user/create', methods=['POST'])
 def create_user():
     """Create user
@@ -25,37 +27,15 @@ def create_user():
     """
     if request.is_json is None:
         return Response('Failed: Content must be json', 400)
-    content = request.get_json()
-    username = content['username']
-    firstname = content['firstname']
-    lastname = content['lastname']
-    dob = content['dob']
-    creation_date = datetime.now()
-    last_login = datetime.now()
-    email = content['email']
-    password = content['password']
-    passwordHash = pbkdf2_sha256.encrypt(password)
-    is_verified = False
-    isReqUser = User.objects(email=email)
-    userNameTaken = User.objects(username=username)
-    #verify they are not already registered with that email
-    if isReqUser:
-        return Response('Failed: User is already registered', 400)
-    #verify the username is not taken
-    if userNameTaken:
-        return Response('Failed Username Taken', 400)
-    #There may be a better way to do this, plz correct me if I'm wrong
-    newUser = User(username=username,
-        firstname=firstname,
-        lastname=lastname,
-        public_id=str(uuid.uuid4()),
-        dob=dob,
-        creation_date=creation_date,
-        last_login=last_login,
-        email=email,
-        password=passwordHash,
-        is_verified=is_verified)
-    newUser.save()
+
+    r = request.get_json()
+    newUser = User(**r)
+    try:
+        newUser.save()
+    except mongoengine.errors.NotUniqueError as e:
+        for field in User._fields:
+            if field in str(e):
+                return Response('Failed: field {} is already taken'.format(field), 400)
     return Response('Success', 200)
 
 
@@ -98,6 +78,8 @@ def get_user_info():
     :rtype: User
     """
     pass
+
+
 @user.route('/user/login', methods=['POST'])
 def login():
     """Logs user into the system
@@ -113,16 +95,15 @@ def login():
     username = content['username']
     password = content['password']
     isUser = User.objects.get(username=username)
-    #validation, is this a valid user and is this their password
+    # validation, is this a valid user and is this their password
     if not isUser and not pbkdf2_sha256.verify(password, isUser.password):
         return Response('Failed: Credentials are wrong', 400)
-    #return a JWT token if they are validated
-    token = jwt.encode({'public_id' : isUser.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=7)}, app.config['SECRET_KEY'])
-    return jsonify({'token' : token.decode('UTF-8')})
-
-
-
-
+    # return a JWT token if they are validated
+    token = jwt.encode({'public_id': isUser.get_id(), 'exp': datetime.datetime.utcnow(
+    ) + datetime.timedelta(days=7)}, app.config['SECRET_KEY'])
+    isUser.last_login = datetime.datetime.now()
+    isUser.save()
+    return jsonify({'token': token.decode('UTF-8')})
 
 
 def logout_user():

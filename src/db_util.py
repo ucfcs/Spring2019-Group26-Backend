@@ -171,8 +171,8 @@ def add_all():
         mod_1.number_of_words = len(mod_1.words)
         mod_1.save()
 
-        user_1 = User(username='baba_yaga', firstname='jon', lastname='wick', public_id=str(uuid.uuid4()), dob='1964-09-02',
-                      email='babayaga64@gmail.com', password=pbkdf2_sha256.hash('willkillugood'), last_login=str(datetime.now()))
+        user_1 = User(username='baba_yaga', firstname='jon', lastname='wick', dob='1964-09-02',
+                      email='babayaga64@gmail.com', password=pbkdf2_sha256.hash('willkillugood'))
         user_1.creation_date = '2019-09-13 15:47:18.171396'
         comp1 = Completed_Modules(
             module_id=mod_1.id, module_name=mod_1.module_name)
@@ -186,7 +186,7 @@ def add_all():
         ans3 = UserAnswers(question_id=q3.id, user_answer=q3.word.word)
         ans4 = UserAnswers(question_id=q4.id, user_answer=q4.word.word)
         sub_1 = Submission(user_id=user_1, quiz_id=quiz_1, module_id=mod_1, user_answers=[
-                           ans0, ans1, ans2, ans3, ans4], grade=4)
+            ans0, ans1, ans2, ans3, ans4], grade=4)
         sub_1.save()
     except Exception:
         print("An error occured filling the database.")
