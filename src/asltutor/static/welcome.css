@@ -5,7 +5,7 @@
 
 body {
 	font-size: 14px;
-	line-height: 3.14286;
+	line-height: 2;
 	font-weight: 400;
 	letter-spacing: -.01em;
 	font-family: "SF Pro Text","Myriad Set Pro","SF Pro Icons","Helvetica Neue","Helvetica","Arial",sans-serif;
@@ -41,4 +41,40 @@ body {
 .nav a:visited {
 	color: rgb(255, 255, 255);
 	text-decoration: none;
+}
+
+.main-content {
+	background-color: rgb(255, 255, 255);
+}
+
+.main-content div.content {
+	max-width: 600px;
+	margin: 0 auto;
+	font-size: 1.5em;
+}
+
+#product {
+	background-color: rgb(0, 0, 0);
+}
+
+.masked-copy { 
+	/* Magic: */
+	-webkit-background-clip: text;
+	color: transparent !important;
+}
+
+.masked-copy h2 {
+	color: rgb(255, 255, 255);
+	display: inline;
+}
+
+.masked-copy p {
+	display: inline;
+}
+
+.texture-orange {
+	/* Set the text color to a solid, in case effects don't work. */
+	color: #e5895f;
+	background-repeat: no-repeat;
+	background-image: url('https://www.apple.com/v/iphone-xr/a/images/overview/copy_texture_4_large.jpg');
 }
