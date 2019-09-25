@@ -18,6 +18,8 @@ body {
 .nav ul {
 	max-width: 600px;
 	padding: 0 22px;
+	height: 44px;
+	line-height: 44px;
 	z-index: 2;
 	margin: 0 auto;
 	list-style: none;
