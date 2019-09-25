@@ -35,7 +35,7 @@ chmod +x deploy.sh
 The deploy script will seem like it is hanging, there 40 seconds wait to make sure
 mongo is started
 
-If you make changes and they do not automatically take affect run:
+If you make changes and they do not automatically take effect run:
 ```bash
 sudo systemctl restart asltutor
 ```
