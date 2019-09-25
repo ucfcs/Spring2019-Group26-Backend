@@ -1,0 +1,44 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-size: 14px;
+	line-height: 3.14286;
+	font-weight: 400;
+	letter-spacing: -.01em;
+	font-family: "SF Pro Text","Myriad Set Pro","SF Pro Icons","Helvetica Neue","Helvetica","Arial",sans-serif;
+}
+
+.nav {
+	background-color: rgba(0,0,0,0.8);
+}
+
+.nav ul {
+	max-width: 600px;
+	padding: 0 22px;
+	z-index: 2;
+	margin: 0 auto;
+	list-style: none;
+	display: flex;
+	justify-content: space-between;
+}
+
+.nav li {
+	display: inline-block;
+}
+
+.nav a:link {
+	color: rgb(255, 255, 255);
+	text-decoration: none;
+}
+
+.nav a:hover {
+	opacity: 0.65;
+}
+
+.nav a:visited {
+	color: rgb(255, 255, 255);
+	text-decoration: none;
+}
