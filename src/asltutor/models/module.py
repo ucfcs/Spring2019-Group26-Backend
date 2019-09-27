@@ -4,6 +4,7 @@ from asltutor.models.dictionary import Dictionary
 from asltutor.database import db
 import flask_mongoengine as fm
 import mongoengine_goodjson as gj
+from mongoengine import PULL
 
 
 class QuerySet(fm.BaseQuerySet, gj.QuerySet):
@@ -22,8 +23,9 @@ class Document(db.Document, gj.Document):
 class Module(Document):
     module_name = db.StringField(required=True, max_length=20, unique=True)
     details = db.StringField(max_length=500)
-    number_of_words = db.IntField()
     parent = db.ObjectIdField()
     child = db.ObjectIdField()
-    words = db.ListField(gj.FollowReferenceField(Dictionary))
-    quiz = db.ListField(gj.FollowReferenceField(Quiz))
+    words = db.ListField(gj.FollowReferenceField(
+        Dictionary, reverse_delete_rule=PULL))
+    quiz = db.ListField(gj.FollowReferenceField(
+        Quiz, reverse_delete_rule=PULL))

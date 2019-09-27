@@ -6,7 +6,6 @@ import jwt
 from mongoengine import *
 
 
-
 app = Flask(__name__)
 
 app.config.from_object(settings.DevelopmentConfig)
@@ -15,16 +14,14 @@ app.config.from_object(settings.DevelopmentConfig)
 database.db.init_app(app)
 
 # Flask Security
-#not sure when this will actually end up used, for now using JWT
+# not sure when this will actually end up used, for now using JWT
 login_manager.lm.init_app(app)
-
 
 
 @app.route('/')
 def hello():
     return 'hello world'
 
-# Auth
 # Dictionary
 # Module
 # Quiz
@@ -42,12 +39,11 @@ app.register_blueprint(user, url_prefix='/v1')
 from asltutor.controllers.quiz_controller import quiz
 app.register_blueprint(quiz, url_prefix='/v1')
 
-from asltutor.controllers.stats_controller import stats
-app.register_blueprint(stats, url_prefix='/v1')
+from asltutor.controllers.admin_controller import admin
+app.register_blueprint(admin, url_prefix='/v1')
 
 from asltutor.controllers.module_controller import module
 app.register_blueprint(module, url_prefix='/v1')
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

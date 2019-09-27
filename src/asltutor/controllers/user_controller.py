@@ -1,6 +1,5 @@
 from asltutor.models.user import User
-from asltutor import login_manager
-from flask import current_app as app
+from asltutor.models.submission import Submission
 from flask_mongoengine import MongoEngine
 from bson import ObjectId
 import datetime
@@ -36,7 +35,7 @@ def create_user():
     except NotUniqueError as e:
         for field in User._fields:
             if field in str(e):
-                return Response('Failed: field {} is already taken'.format(field), 400)
+                return Response('Failed: field {} is already taken'.format(field), 409)
     return Response('Success', 200)
 
 
@@ -113,3 +112,48 @@ def logout_user():
     :rtype: None
     """
     pass
+
+
+@user.route('/user/<username>/submssions/<submissionId>', methods=['GET'])
+def get_submission(submissionId):
+    """View a submission given a specific submission Id
+
+    Returns a single submission specified by a submission Id to a user.
+    Validates whether or not the user has the correct privilege to view the submission.
+
+    :param submissionId: The Id of the submission that a user is requesting.
+    :type submission_id: str
+
+    :rtype: JSON
+    """
+    if ObjectId.is_valid(submissionId):
+        return Response(Submission.objects.get_or_404(id=submissionId).to_json(), mimetype='application/json')
+    return Response('Failed: invalid Id', 400)
+
+
+@user.route('/user/<username>/submissions', methods=['GET'])
+def get_submissions(username):
+    """Get a list of all submissions filtered based on certian criteria.
+
+    Returns an array of all submissions. It can be filtered based on quizId and/or moduleId and/or userId.
+    For example, a user can request all of their sumissions for any combination of moduleId or quizId.
+    Defaults to all submissions for a user
+
+    :query param quiz: The quiz Id that a user wants all submissions for
+    :type quiz_id: str
+    :query param moduleid: The module Id that a user wants all submissions for
+    :type module_id: str
+
+    :rtype: JSON
+    """
+    quizId = request.args.get('quiz', None)
+    moduleId = request.args.get('module', None)
+    user = User.objects.get(username=username)
+
+    subs = Submission.objects(user_id__exact=user.id)
+    if moduleId and ObjectId.is_valid(moduleId):
+        subs = subs.filter(module_id__exact=moduleId)
+
+    if quizId and ObjectId.is_valid(quizId):
+        subs = Submission.objects(quiz_id__exact=quizId)
+    return Response(subs.to_json(), mimetype='application/json')
