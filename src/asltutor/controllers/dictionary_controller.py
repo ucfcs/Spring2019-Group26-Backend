@@ -19,7 +19,7 @@ def add_word():
     :rtype: None
     """
     if request.content_type != 'application/json':
-        return Response('Failed: Content must be json', 400)
+        return Response('Failed: Content-type must be application/json', 401)
 
     r = request.get_json()
     o = Dictionary.objects(word__contains=r['word'])

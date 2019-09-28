@@ -114,38 +114,34 @@ def logout_user():
     pass
 
 
-@user.route('/user/<username>/submssions/<submissionId>', methods=['GET'])
-def get_submission(submissionId):
-    """View a submission given a specific submission Id
-
-    Returns a single submission specified by a submission Id to a user.
-    Validates whether or not the user has the correct privilege to view the submission.
-
-    :param submissionId: The Id of the submission that a user is requesting.
-    :type submission_id: str
-
-    :rtype: JSON
-    """
-    if ObjectId.is_valid(submissionId):
-        return Response(Submission.objects.get_or_404(id=submissionId).to_json(), mimetype='application/json')
-    return Response('Failed: invalid Id', 400)
-
-
-@user.route('/user/<username>/submissions', methods=['GET'])
+@user.route('/user/<string:username>/submissions', methods=['GET'])
 def get_submissions(username):
     """Get a list of all submissions filtered based on certian criteria.
 
+    Returns a single submission specified by a submission Id to a user.
+    or
     Returns an array of all submissions. It can be filtered based on quizId and/or moduleId and/or userId.
     For example, a user can request all of their sumissions for any combination of moduleId or quizId.
     Defaults to all submissions for a user
 
+    :query param submission: The Id of the submission that a user is requesting.
+    :type submission_id: str
     :query param quiz: The quiz Id that a user wants all submissions for
-    :type quiz_id: str
-    :query param moduleid: The module Id that a user wants all submissions for
-    :type module_id: str
+    :type quizId: str
+    :query param moduleId: The module Id that a user wants all submissions for
+    :type moduleId: str
 
     :rtype: JSON
     """
+
+    # If we are given a submission Id no filtering needs to be done. Return the document referenced by the id.
+    submissionId = request.args.get('submission', None)
+    if submissionId != None:
+        if not ObjectId.is_valid(submissionId):
+            return Response('Failed: invalid Id', 400)
+        else:
+            return Response(Submission.objects.get_or_404(id=submissionId).to_json(), mimetype='application/json')
+
     quizId = request.args.get('quiz', None)
     moduleId = request.args.get('module', None)
     user = User.objects.get(username=username)

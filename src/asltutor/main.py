@@ -4,6 +4,7 @@ from flask import Flask
 from asltutor import settings, database, login_manager
 import jwt
 from mongoengine import *
+from flask_swagger_ui import get_swaggerui_blueprint
 
 
 app = Flask(__name__)
@@ -29,6 +30,22 @@ def hello():
 # Submission
 # User
 
+
+"""
+Swagger docs
+"""
+
+SWAGGER_URL = '/v1/docs'
+API_URL = '/static/swagger.yaml'
+
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': 'ASLTutor docs'
+    })
+
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 from asltutor.controllers.dictionary_controller import dictionary
 app.register_blueprint(dictionary, url_prefix='/v1')

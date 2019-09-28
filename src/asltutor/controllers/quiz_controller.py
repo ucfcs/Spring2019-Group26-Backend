@@ -9,6 +9,8 @@ from bson import ObjectId
 
 quiz = Blueprint('quiz', __name__)
 
+# deprecated
+
 
 @quiz.route('/module/quiz/id/<moduleId>', methods=['POST'])
 def create_bulk(moduleId):
@@ -25,7 +27,7 @@ def create_bulk(moduleId):
 
     # check for json
     if request.content_type != 'application/json':
-        return Response('Failed: Content must be valid json', 400)
+        return Response('Failed: Content-type must be application/json', 401)
 
     r = request.get_json()
     """
@@ -69,53 +71,47 @@ def create_bulk(moduleId):
     return Response('Success', 200)
 
 
-@quiz.route('/module/quiz/create/id/<moduleId>', methods=['POST'])
-def create_quiz(moduleId):
+@quiz.route('/module/quiz/id/<id_>', methods=['POST', 'GET'])
+def create_or_get_quiz(id_):
     """
-    Create a quiz with no questions and attach it to a module
+    POST:
+        Create a quiz with no questions and attach it to a module
 
-    path parameter: /module/quiz/create/id/<moduleId>
-    request body
+        path parameter: /module/quiz/id/<moduleId>
+        request body
 
-    :rtype: None
+        :rtype: None
+    GET:
+        Get a quiz for a module
+
+        Get a single quiz based on a given quiz Id
+
+        path parameter: /module/quiz/id/<quizid>
+        no request body
+
+        :rtype: json
     """
-    if request.content_type != 'application/json':
-        return Response('Failed: Content must be valid json', 400)
-    r = request.get_json()
-    try:
-        quiz = Quiz(**r)
-        quiz.save()
-        Module.objects(id=moduleId).update_one(add_to_set__quiz=quiz)
-    except:
-        return Response('Failed: invalid request', 400)
-    return Response('Success', 200)
-
-
-@quiz.route('/module/quiz/question/create/id/<quizId>', methods=['POST'])
-def create_question(quizId):
-    """
-    Create a question and attach it to a quiz that is attached to a module
-
-    path parameter: /module/quiz/question/create/id/<quizId>
-    request body
-
-    :rtype: None
-    """
-    if request.content_type != 'application/json':
-        return Response('Failed: Content must be valid json', 400)
-    r = request.get_json()
-    if not ObjectId.is_valid(r['word']):
+    if not ObjectId.is_valid(id_):
         return Response('Failed: invalid Id', 400)
 
-    word = Dictionary.objects.get_or_404(id=r['word'])
+    if request.method == 'POST':
+        if request.content_type != 'application/json':
+            return Response('Failed: Content-type must be application/json', 401)
+        r = request.get_json()
+        try:
+            quiz = Quiz(**r)
+            quiz.save()
+            Module.objects(id=id_).update_one(add_to_set__quiz=quiz)
+        except:
+            return Response('Failed: invalid request', 400)
+        return Response('Success', 200)
 
-    try:
-        question = Question(question_text=r['question_text'], word=word)
-        question.save()
-        Quiz.objects(id=quizId).update_one(add_to_set__questions=question)
-    except:
-        return Response('Failed: invalid request', 400)
-    return Response('Success', 200)
+    elif request.method == 'GET':
+        quiz = Quiz.objects.get_or_404(id=id_)
+        return Response(quiz.to_json(), 200, mimetype='application/json')
+
+    else:
+        return Response('Failed: server error', 500)
 
 
 @quiz.route('/module/quiz/delete/id/<quizId>', methods=['POST'])
@@ -129,11 +125,60 @@ def delete_quiz(quizId):
 
     :rtype: none
     """
-    if ObjectId.is_valid(quizId):
-        quiz = Quiz.objects.get_or_404(id=quizId)
-        quiz.delete()
+    if not ObjectId.is_valid(quizId):
+        return Response('Failed: invalid Id', 400)
+
+    quiz = Quiz.objects.get_or_404(id=quizId)
+    quiz.delete()
+    return Response('Success', 200)
+
+
+@quiz.route('/module/quiz/question/id/<id_>', methods=['POST', 'GET'])
+def create_or_get_question(id_):
+    """
+    POST:
+        Create a question and attach it to a quiz that is attached to a module
+
+        path parameter: /module/quiz/question/id/<quizId>
+        request body
+
+        :rtype: None
+    GET:
+        Get a single question for a quiz
+
+        Get a single quiz based on a given quiz Id
+
+        path parameter: /module/quiz/question/id/<questionId>
+        no request body
+
+        :rtype: json
+    """
+    if not ObjectId.is_valid(id_):
+        return Response('Failed: invalid Id', 400)
+
+    if request.method == 'POST':
+        if request.content_type != 'application/json':
+            return Response('Failed: Content-type must be application/json', 401)
+        r = request.get_json()
+        if not ObjectId.is_valid(r['word']):
+            return Response('Failed: invalid Id', 400)
+
+        word = Dictionary.objects.get_or_404(id=r['word'])
+
+        try:
+            question = Question(question_text=r['question_text'], word=word)
+            question.save()
+            Quiz.objects(id=id_).update_one(add_to_set__questions=question)
+        except:
+            return Response('Failed: invalid request', 400)
         return Response('Success', 200)
-    return Response('Failed: invalid Id', 400)
+
+    elif request.method == 'GET':
+        question = Question.objects.get_or_404(id=id_)
+        return Response(question.to_json(), 200, mimetype='application/json')
+
+    else:
+        return Response('Failed: server error', 500)
 
 
 @quiz.route('/module/quiz/question/delete/id/<questionId>', methods=['POST'])
@@ -147,45 +192,12 @@ def delete_question(questionId):
 
     :rtype: none
     """
-    if ObjectId.is_valid(questionId):
-        question = Question.objects.get_or_404(id=questionId)
-        question.delete()
-        return Response('Success', 200)
-    return Response('Failed: invalid Id', 400)
+    if not ObjectId.is_valid(questionId):
+        return Response('Failed: invalid Id', 400)
 
-
-@quiz.route('/module/quiz/id/<quizId>', methods=['GET'])
-def get_quiz(quizId):
-    """Get a quiz for a module
-
-    Get a single quiz based on a given quiz Id
-
-    path parameter: /module/quiz/id/<objectid>
-    no request body
-
-    :rtype: json
-    """
-    if ObjectId.is_valid(quizId):
-        quiz = Quiz.objects.get_or_404(id=quizId)
-        return Response(quiz.to_json(), 200, mimetype='application/json')
-    return Response('Failed: invalid Id', 400)
-
-
-@quiz.route('/module/quiz/question/id/<questionId>', methods=['GET'])
-def get_question(questionId):
-    """Get a single question for a quiz
-
-    Get a single quiz based on a given quiz Id
-
-    path parameter: /module/quiz/question/id/<objectid>
-    no request body
-
-    :rtype: json
-    """
-    if ObjectId.is_valid(questionId):
-        question = Question.objects.get_or_404(id=questionId)
-        return Response(question.to_json(), 200, mimetype='application/json')
-    return Response('Failed: invalid Id', 400)
+    question = Question.objects.get_or_404(id=questionId)
+    question.delete()
+    return Response('Success', 200)
 
 
 def grade_and_verify(list):
@@ -209,7 +221,7 @@ def submit_quiz():
     :rtype: none
     """
     if request.content_type != 'application/json':
-        return Response('Failed: Content must be valid json', 400)
+        return Response('Failed: Content-type must be application/json', 401)
     r = request.get_json()
 
     # if this fails either the oids are invalid or the entries do not exist
