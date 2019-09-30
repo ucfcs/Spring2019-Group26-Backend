@@ -1,0 +1,7 @@
+<div class="nav">
+	<ul>
+		{% for item in navigation %}
+			<li><a href="{{ item.href }}">{{ item.caption }}</a></li>
+		{% endfor %}
+	</ul>
+</div>
