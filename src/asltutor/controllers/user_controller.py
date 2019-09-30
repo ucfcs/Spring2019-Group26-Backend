@@ -39,17 +39,20 @@ def create_user():
     return Response('Success', 200)
 
 
-def delete_user():
+@user.route('/user/<string:username>', methods=['POST'])
+def delete_user(username):
     """Delete a user
 
     Delete the specified user and all information corresponding to that user from the database.
 
-    :param username: The username of the user to be deleted
+    :path param username: The username of the user to be deleted
     :type username: str
 
     :rtype: None
     """
-    pass
+    user = User.objects.get_or_404(username=username)
+    user.delete()
+    return Response('Success: user has been deleted')
 
 
 def edit_user():
@@ -66,7 +69,7 @@ def edit_user():
     """
     pass
 
-
+@user.route('/user/<string:username>', methods=['GET'])
 def get_user_info():
     """Get user info
 
@@ -75,9 +78,10 @@ def get_user_info():
     :param username: The username of the user to be fetched
     :type username: str
 
-    :rtype: User
+    :rtype: json
     """
-    pass
+    return Response(User.objects(username=username).exclude('password', 'last_login', 'is_active'))
+
 
 
 @user.route('/user/login', methods=['POST'])
