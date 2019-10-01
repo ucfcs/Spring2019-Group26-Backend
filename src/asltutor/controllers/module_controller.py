@@ -1,4 +1,5 @@
 from asltutor.models.module import Module
+from asltutor.models.dictionary import Dictionary
 from flask import request, Response
 from flask import Blueprint
 from bson import ObjectId
@@ -16,14 +17,19 @@ def create_module():
 
     :rtype: None
     """
+    # TODO: Make sure the parent child relationship is handled correctly and error handling
     if request.content_type != 'application/json':
         return Response('Failed: Content-type must be application/json', 401)
 
     r = request.get_json()
+
     o = Module(**r)
+    try:
+        o.validate()
+    except:
+        return Response('Failed: invalid Id', 400)
     o.save()
     return Response('Success', 200)
-
 
 @module.route('/module/addword', methods=['POST'])
 def add_word():
@@ -43,7 +49,7 @@ def add_word():
     if not ObjectId.is_valid(r['word_id']) or not ObjectId.is_valid(r['module_id']):
         return Response('Failed: invalid Id', 400)
 
-    word = Module.objects.get_or_404(id=r['word_id'])
+    word = Dictionary.objects.get_or_404(id=r['word_id'])
     try:
         Module.objects(id=r['module_id']).update_one(push__words=word)
     except:
@@ -78,10 +84,10 @@ def delete_module(moduleId):
             Module.objects(id=o.child).update_one(parent=o.parent)
         else:
             # parent exists, child does not exist
-            Module.objects(id=o.parent).update_one(unset__child)
+            Module.objects(id=o.parent).update_one(child=None)
     else:
         # parent does not exist, child exists
-        Module.objects(id=o.child).update_one(unset__parent)
+        Module.objects(id=o.child).update_one(parent=None)
 
     for e in o.quiz:
         e.delete()
