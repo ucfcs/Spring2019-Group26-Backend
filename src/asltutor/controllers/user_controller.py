@@ -26,7 +26,7 @@ def create_user():
     :rtype: None
     """
     if request.is_json is None:
-        return Response('Failed: Content must be json', 400)
+        return Response('Failed: Content-type must be application/json', 401)
 
     r = request.get_json()
     newUser = User(**r)
@@ -69,8 +69,9 @@ def edit_user():
     """
     pass
 
+
 @user.route('/user/<string:username>', methods=['GET'])
-def get_user_info():
+def get_user_info(username):
     """Get user info
 
     Get all user information for a user
@@ -80,8 +81,11 @@ def get_user_info():
 
     :rtype: json
     """
-    return Response(User.objects(username=username).exclude('password', 'last_login', 'is_active'))
+    print(username)
 
+    if User.objects(username=username):
+        return Response(User.objects(username=username).exclude('password', 'last_login', 'is_active').to_json())
+    return Response('Failed: User not found', 404)
 
 
 @user.route('/user/login', methods=['POST'])
@@ -94,7 +98,7 @@ def login():
     :rtype: str
     """
     if request.is_json is None:
-        return Response('Failed: Content must be json', 400)
+        return Response('Failed: Content-type must be application/json', 401)
     content = request.get_json()
     username = content['username']
     password = content['password']
@@ -140,20 +144,34 @@ def get_submissions(username):
 
     # If we are given a submission Id no filtering needs to be done. Return the document referenced by the id.
     submissionId = request.args.get('submission', None)
-    if submissionId != None:
-        if not ObjectId.is_valid(submissionId):
-            return Response('Failed: invalid Id', 400)
-        else:
-            return Response(Submission.objects.get_or_404(id=submissionId).to_json(), mimetype='application/json')
-
     quizId = request.args.get('quiz', None)
     moduleId = request.args.get('module', None)
-    user = User.objects.get(username=username)
+    if submissionId:
+        if ObjectId.is_valid(submissionId):
+            # submission cannot be combined with other queries
+            if not quizId and not moduleId:
+                return Response(Submission.objects.get_or_404(id=submissionId).to_json(), mimetype='application/json')
+            else:
+                return Response('Failed: Submission query cannot be combined with other queries', 400)
+        else:
+            return Response('Failed: invalid Id', 400)
+
+    # if submissionId is not specified do further filtering
+    user = User.objects.get_or_404(username=username)
 
     subs = Submission.objects(user_id__exact=user.id)
-    if moduleId and ObjectId.is_valid(moduleId):
-        subs = subs.filter(module_id__exact=moduleId)
+    if moduleId:
+        if ObjectId.is_valid(moduleId):
+            subs = subs.filter(module_id__exact=moduleId)
+        else:
+            return Response('Failed: invalid Id', 400)
 
-    if quizId and ObjectId.is_valid(quizId):
-        subs = Submission.objects(quiz_id__exact=quizId)
-    return Response(subs.to_json(), mimetype='application/json')
+    if quizId:
+        if ObjectId.is_valid(quizId):
+            subs = Submission.objects(quiz_id__exact=quizId)
+        else:
+            return Response('Failed: invalid Id', 400)
+
+    if subs:
+        return Response(subs.to_json(), mimetype='application/json')
+    return Response('Failed: No submission found for that query')
