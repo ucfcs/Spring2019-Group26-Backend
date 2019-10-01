@@ -1,0 +1,958 @@
+openapi: 3.0.0
+info:
+  title: ASL Tutor API
+  description: Full API documentation for ASL tutor backend
+  version: 1.0.0-oas3
+servers:
+  - url: 'http://localhost:1337/v1'
+  - url: 'https://theasltutor.com/v1'
+paths:
+  /user/create:
+    post:
+      tags:
+        - user
+      summary: Registers a user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+      responses:
+        '200':
+          description: 'Success: user registered'
+        '409':
+          description: 'Failed: field is already taken'
+  '/user/{username}/submissions':
+    get:
+      tags:
+        - submission
+      summary: 'View a submission given a specific submission Id'
+      description: 'Returns a single submission specified by a submission Id to a user. Or Returns an array of all submissions. It can be filtered based on quizId and/or moduleId and/or userId.'
+      parameters:
+      - name: username
+        in: path
+        description: 'The username of the user that the admin wants all the submissions for'
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: baba_yaga
+      - name: quiz
+        in: query
+        description: The quiz Id that a user wants all submissions for
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: ObjectId
+      - name: module
+        in: query
+        description: 'The username of the user that the admin wants all the submissions for'
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: ObjectId
+      - name: submission
+        in: query
+        description: 'The Id of the submission that a user is requesting. CANNOT BE COMBINED WITH OTHER QUERIES.'
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          format: ObjectId
+      responses:
+        200:
+          description: 'Success: Submission retrieved'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSubmission'
+        404:
+          description: 'Failed: submission not found or user does not exist'
+  '/user/{username}':
+    get:
+      tags:
+        - user
+      summary: 'Get info from a user'
+      description: 'Get all profile information from a user'
+      parameters:
+      - name: username
+        in: path
+        description: 'The username of the of the user who owns that profile'
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: baba_yaga
+      responses:
+        200:
+          description: 'Success: User info retrieved'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfoUser'
+    post:
+      tags:
+        - user
+      summary: 'Delete user'
+      description: 'Deletes a user and all its submississions from the DB'
+      parameters:
+      - name: username
+        in: path
+        description: 'The username of the user being deleted'
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: baba_yaga
+      responses:
+        200:
+          description: 'Success: user has been deleted'
+        404:
+          description: 'Failed: user not found'
+  /admin/stats:
+    get:
+      tags:
+        - admin
+      summary: Get top most requested words
+      description: >-
+        Returns a list of JSON objects with the top 'N' where 5 <= N <= 100 most
+        downloaded words.
+      parameters:
+        - name: limit
+          in: query
+          description: The total number words the admin requests
+          required: false
+          style: form
+          explode: true
+          schema:
+            maximum: 100
+            minimum: 5
+            type: integer
+            format: int32
+            example: 25
+            default: 20
+      responses:
+        '200':
+          description: >-
+            Success: returning the dictionary information of the top 'N'
+            requested words
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetDictionary'
+  /admin/submissions:
+    get:
+      tags:
+        - admin
+      summary: Get a list of all submissions filtered based on certian criteria.
+      description: >-
+        Returns an array of all submissions. It can be filtered based on quizId
+        and/or moduleId and/or userId. For example, a user can request all of
+        their sumissions for any combination of moduleId or quizId. Must have at
+        least one filter otherwise error
+      parameters:
+        - name: user
+          in: query
+          description: >-
+            The username of the user that the admin wants all the submissions
+            for
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: quiz
+          in: query
+          description: The quiz Id that a user wants all submissions for
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            format: ObjectId
+        - name: module
+          in: query
+          description: >-
+            The username of the user that the admin wants all the submissions
+            for
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            format: ObjectId
+        - name: submission
+          in: query
+          description: The Id of the submission that a user is requesting. CANNOT BE COMBINED WITH OTHER QUERIES.
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+            format: ObjectId
+      responses:
+        '200':
+          description: Submission(s) sucessfully returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetSubmission'
+        '412':
+          description: 'Failed: specify at least one filter to view submissions'
+  /dictionary:
+    get:
+      tags:
+        - dictionary
+      summary: Get an ASL definition from the dictionary
+      description: >-
+        Returns a URL location of the ASL animation corresponding to the input
+        given
+      parameters:
+        - name: input
+          in: query
+          description: Input the user wants a translation for
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+            example: test
+      responses:
+        '200':
+          description: 'Success: word object returned'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDictionary'
+        '404':
+          description: 'Failed: Word not found'
+  /dictionary/create:
+    post:
+      tags:
+        - dictionary
+      summary: Add a word to the dictionary
+      description: Admins are able to add an ASL animation to our dictionary
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostDictionary'
+        required: true
+      responses:
+        '200':
+          description: 'Success: word added to dictionary'
+        '401':
+          description: 'Failed: Content-type must be application/json'
+  /module:
+    get:
+      tags:
+        - module
+      summary: Get a list of modules
+      description: >-
+        Get a list of all modules available to the user. Excludes word and quiz
+        lists to limit the response size. Ment to be used to get top level info
+        about all modules.
+      responses:
+        '200':
+          description: >-
+            Sucess: returning an array of objects containing module names, Ids,
+            details and child and parent objectIds
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInfoModule'
+  /module/create:
+    post:
+      tags:
+        - module
+      summary: Create a module
+      description: An admin will be able to create a new learning module
+      requestBody:
+        description: The module object that the admin wants to upload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostModule'
+        required: true
+      responses:
+        '200':
+          description: 'Success: module created'
+        '401':
+          description: 'Failed: Content-type must be application/json'
+  /module/addword:
+    post:
+      tags:
+        - module
+      summary: Add a word to an existing module
+      description: An admin will be able to add a word to an existing module
+      requestBody:
+        description: A request containing the module_id and the word_id
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                module_id:
+                  type: string
+                  format: ObjectId
+                word_id:
+                  type: string
+                  format: ObjectId
+        required: true
+      responses:
+        '200':
+          description: 'Success: word added to module'
+        '400':
+          description: 'Failed: invalid Id'
+        '401':
+          description: 'Failed: Content-type must be application/json'
+        '404':
+          description: 'Failed: word or module not found'
+  '/module/delete/id/{moduleId}':
+    post:
+      tags:
+        - module
+      summary: Deletes the module and all of it quizzes from the database.
+      description: >-
+        Deletes the module and all of it's quizzes from the database. Also
+        adjusts the it's parents and/or children
+      parameters:
+        - name: moduleId
+          in: path
+          description: Module Id of the module to be deleted
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            format: ObjectId
+      responses:
+        '200':
+          description: 'Success: module and quizzes sucessfully deleted'
+        '400':
+          description: 'Failed: invalid Id'
+        '404':
+          description: 'Failed: module not found'
+  '/module/id/{moduleId}':
+    get:
+      tags:
+        - module
+      summary: Get a specific module
+      description: Get a single module givin a module Id
+      operationId: get_module
+      parameters:
+        - name: moduleId
+          in: path
+          description: The module Id of the module a user wants.
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            format: ObjectId
+      responses:
+        '200':
+          description: 'Success: the corresponding module object has been returned'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetFullModule'
+        '400':
+          description: 'Failed: invalid Id'
+        '404':
+          description: 'Failed: module not found'
+  '/module/quiz/id/{moduleId}':
+    post:
+      deprecated: true
+      tags:
+        - quiz
+      summary: Fast create quiz
+      description: >-
+        If you have a complete quiz pass it here and it will populate all the
+        fields for the whole quiz
+      parameters:
+        - name: moduleId
+          in: path
+          description: The module Id for the module that a user is adding a quiz to
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            format: ObjectId
+      responses:
+        '200':
+          description: 'Success: all question objects have been returned'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkCreateQuiz'
+        '400':
+          description: 'Failed: invalid entries'
+        '401':
+          description: 'Failed: Content-type must be application/json'
+  '/module/quiz/id/{id}':
+    post:
+      tags:
+        - quiz
+      summary: Create quiz
+      description: Create a quiz with no questions and attach it to a module
+      parameters:
+        - name: id
+          in: path
+          description: The module Id for the module that a user is adding a quiz to
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            format: ObjectId
+      requestBody:
+        description: A request containing the quiz name and details about the quiz
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostQuiz'
+        required: true
+      responses:
+        '200':
+          description: 'Success: Quiz has been created for a module'
+        '400':
+          description: 'Failed: invalid Id'
+        '401':
+          description: 'Failed: Content-type must be application/json'
+        '500':
+          description: 'Failed: server error'
+    get:
+      tags:
+        - quiz
+      summary: Get quiz
+      description: Get a single quiz based on a given quiz Id
+      parameters:
+        - name: id
+          in: path
+          description: The quiz Id for the quiz that a user is requesting
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            format: ObjectId
+      responses:
+        '200':
+          description: 'Success: all quiz object has been returned'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetQuiz'
+        '400':
+          description: 'Failed: invalid Id'
+        '404':
+          description: 'Failed: quiz not found'
+        '500':
+          description: 'Failed: server error'
+  '/module/quiz/question/id/{id}':
+    post:
+      tags:
+        - quiz
+      summary: Create question
+      description: Create a single question and attach it to a quiz
+      parameters:
+        - name: id
+          in: path
+          description: The quiz Id for the quiz that a user is adding a question to
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            format: ObjectId
+      requestBody:
+        description: A request containing the question text and the objectId of the word
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostQuestion'
+      responses:
+        '200':
+          description: 'Success: all question objects have been returned'
+        '400':
+          description: 'Failed: invalid entries'
+        '401':
+          description: 'Failed: Content-type must be application/json'
+        '500':
+          description: 'Failed: server error'
+    get:
+      tags:
+        - quiz
+      summary: Get a question
+      description: Get a single question given a question Id
+      parameters:
+        - name: id
+          in: path
+          description: The question Id for the question that a user is requesting
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            format: ObjectId
+      responses:
+        '200':
+          description: 'Success: the question object has been returned'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetQuestion'
+        '400':
+          description: 'Failed: invalid Id'
+        '404':
+          description: 'Failed: question not found'
+        '500':
+          description: 'Failed: server error'
+  '/module/quiz/delete/id/{quizId}':
+    post:
+      tags:
+        - quiz
+      summary: Delete quiz
+      description: An admin can delete an existing quiz based on a given quiz Id
+      parameters:
+        - name: quizId
+          in: path
+          description: The quiz Id for the quiz that an admin is deleting
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            format: ObjectId
+      responses:
+        '200':
+          description: 'Success: quiz has been deleted'
+        '400':
+          description: 'Failed: invalid id'
+        '404':
+          description: 'Failed: quiz not found'
+  '/module/quiz/question/delete/id/{questionId}':
+    post:
+      tags:
+        - quiz
+      summary: Delete question
+      description: An admin can delete an existing question based on a given question Id
+      parameters:
+        - name: questionId
+          in: path
+          description: The question Id for the question that an admin is deleting
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            format: ObjectId
+      responses:
+        '200':
+          description: 'Success: question has been deleted'
+        '400':
+          description: 'Failed: invalid id'
+        '404':
+          description: 'Failed: question not found'
+  /module/quiz:
+    post:
+      tags:
+        - submission
+      summary: Submit a quiz
+      description: Post a users quiz submission to the backend.
+      requestBody:
+        description: The submission object that the user is submiting
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostSubmission'
+        required: true
+      responses:
+        '200':
+          description: 'Success: Submission has been posted'
+        '400':
+          description: 'Failed: invalid Id(s)'
+        '401':
+          description: 'Failed: Content-type must be application/json'
+components:
+  schemas:
+    InfoUser:
+      description: Response object containing user info
+      properties:
+        username:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        DOB:
+          type: string
+          format: date
+        email:
+          type: string
+          format: email
+        completed_modules:
+          type: array
+          items:
+            type: object
+            properties:
+              module_id:
+                type: string
+                format: ObjectId
+              module_name:
+                type: string
+            example:
+              module_name: module_name
+              module_id: module_id
+    CreateUser:
+      description: User object class.
+      type: object
+      properties:
+        username:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        DOB:
+          type: string
+          format: date
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        completed_modules:
+          type: array
+          items:
+            type: object
+            properties:
+              module_id:
+                type: string
+                format: ObjectId
+              module_name:
+                type: string
+            example:
+              module_name: module_name
+              module_id: module_id
+      required:
+        - dob
+        - email
+        - password
+        - username
+      example:
+        firstname: Jon
+        lastname: Wick
+        password: willkillugood
+        DOB: '1964-09-02'
+        email: babayaga64@gmail.com
+        username: baba_yaga
+        completed_modules:
+          - module_name: module_name
+            module_id: module_id
+          - module_name: module_name
+            module_id: module_id
+    PostDictionary:
+      description: Word object
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+        word:
+          type: string
+        url:
+          type: string
+          format: uri
+        in_dictionary:
+          type: boolean
+      example:
+        in_dictionary: false
+        word: test
+        url: http://test.com
+      required:
+        - in_dictionary
+        - word
+    GetDictionary:
+      allOf:
+        - $ref: '#/components/schemas/PostDictionary'
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+      example:
+        id: 5d8d6c0955c9083ebfeae8c7
+    GetSubmission:
+      description: Content received when a user gets a submission
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+        user_id:
+          type: string
+          format: ObjectId
+        quiz_id:
+          type: string
+          format: ObjectId
+        module_id:
+          type: string
+          format: ObjectId
+        date_completed:
+          type: string
+          format: date
+        user_answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubmissionUserAnswers'
+        grade:
+          type: integer
+          format: int32
+      example:
+        quiz_id: quizId
+        user_answers:
+          - question_id: questionId
+            user_answer: foo
+          - question_id: questionId
+            user_answer: bar
+        date_completed: '2019-09-13 15:47:18.171396'
+        grade: 6
+        module_id: moduleId
+        user_id: userId
+        id: someId
+    PostSubmission:
+      description: Content received when a user gets a submission
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: ObjectId
+        quiz_id:
+          type: string
+          format: ObjectId
+        module_id:
+          type: string
+          format: ObjectId
+        user_answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubmissionUserAnswers'
+      required:
+        - user_id
+        - quiz_id
+        - module_id
+        - user_answers
+      example:
+        module_id: moduleId
+        user_id: userId
+        quiz_id: quizId
+        user_answers:
+          - question_id: questionId
+            user_answer: foo
+          - question_id: questionId
+            user_answer: bar
+    SubmissionUserAnswers:
+      description: Object containing user answer to a question with the questions answer Id
+      type: object
+      properties:
+        question_id:
+          type: string
+          format: ObjectId
+        user_answer:
+          type: string
+      required:
+        - questionId
+        - user_answer
+    BulkCreateQuiz:
+      description: Quiz object
+      type: object
+      properties:
+        quiz_name:
+          type: string
+        details:
+          type: string
+        questions:
+          type: array
+          items:
+            type: object
+            properties:
+              question_text:
+                type: string
+              url:
+                type: string
+                format: uri
+              answer_bank:
+                type: array
+                items:
+                  type: string
+              correct_index:
+                type: integer
+                format: int32
+    GetInfoModule:
+      description: Basic information about a model
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+        module_name:
+          type: string
+          example: 'Module One: Greetings'
+        details:
+          type: string
+          example: >-
+            In this module you will learn basic the basics of ASL and how to
+            greet someone
+        parent:
+          type: string
+          description: >-
+            The module Id of the module that you must complete before accessing
+            this module
+          format: ObjectId
+        child:
+          type: string
+          description: >-
+            The module Id of the module that you must complete before accessing
+            this module
+          format: ObjectId
+      example:
+        id: id
+        parent: parent
+        child: child
+        moduleName: 'Module One: Greetings'
+        details: >-
+          In this module you will learn basic the basics of ASL and how to greet
+          someone
+    PostModule:
+      description: Module object.
+      type: object
+      properties:
+        module_name:
+          type: string
+        details:
+          type: string
+        parent:
+          type: string
+          format: ObjectId
+        child:
+          type: string
+          format: ObjectId
+        words:
+          type: array
+          description: An array of all the words Ids included in the module
+          items:
+            type: string
+            format: ObjectId
+        quiz:
+          type: array
+          description: An array of all the quiz Ids included in the module
+          items:
+            type: string
+            format: ObjectId
+      example:
+        module_name: Test module
+        details: This is a test module
+        parent: someId
+        child: someId
+        words:
+          - someId
+          - someId
+          - someId
+        quiz:
+          - someId
+    GetFullModule:
+      description: Module object
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+        module_name:
+          type: string
+        details:
+          type: string
+        parent:
+          type: string
+          format: ObjectId
+        child:
+          type: string
+          format: ObjectId
+        words:
+          type: array
+          description: An array of all the word objects included in the module
+          items:
+            $ref: '#/components/schemas/GetDictionary'
+        quiz:
+          type: array
+          description: An array of all the quiz objects included in the module
+          items:
+            $ref: '#/components/schemas/GetQuiz'
+      example:
+        id: 5d8d3dc02e1032bc82d7aa4d
+        module_name: Test module
+        details: This is a test module
+        parent: 5d8d3dc02e1032bc82d7aa4c
+        child: 5d8d3dc02e1032bc82d7aa4e
+        words:
+          - $ref: '#/components/schemas/GetDictionary'
+        quiz:
+          - $ref: '#/components/schemas/GetQuiz'
+    PostQuestion:
+      description: Question object
+      type: object
+      properties:
+        question_text:
+          type: string
+        word:
+          type: string
+          format: ObjectId
+      example:
+        question_text: Hi this is a test
+        word: 5d8d3dc02e1032bc82d7aa3a
+    GetQuestion:
+      allOf:
+        - $ref: '#/components/schemas/PostQuestion'
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+      example:
+        id: '5d8d6c0955c9083ebfeae8c7'
+    PostQuiz:
+      description: Content received when a user gets a submission
+      type: object
+      properties:
+        quiz_name:
+          type: string
+        details:
+          type: string
+      example:
+        quiz_name: Test quiz
+        details: This is a test quiz
+    GetQuiz:
+      allOf:
+        - $ref: '#/components/schemas/PostQuiz'
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+      example:
+        id: '5d8d6c0955c9083ebfeae8c7'
