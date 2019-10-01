@@ -23,8 +23,8 @@ class Document(db.Document, gj.Document):
 class Module(Document):
     module_name = db.StringField(required=True, max_length=20, unique=True)
     details = db.StringField(max_length=500)
-    parent = db.ObjectIdField()
-    child = db.ObjectIdField()
+    parent = db.ObjectIdField(default=None)
+    child = db.ObjectIdField(default=None)
     words = db.ListField(gj.FollowReferenceField(
         Dictionary, reverse_delete_rule=PULL))
     quiz = db.ListField(gj.FollowReferenceField(
