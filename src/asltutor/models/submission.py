@@ -36,7 +36,8 @@ class Submission(Document):
         Module, required=True, reverse_delete_rule=CASCADE)
     user_answers = db.ListField(
         db.EmbeddedDocumentField(UserAnswers, required=True))
-    grade = db.IntField(required=True)
+    grade = db.DecimalField(required=True, precision=2,
+                            rounding='ROUND_HALF_UP', min_value=0, max_value=100)
     date_completed = db.DateTimeField()
 
     def __init__(self, *args, **kwargs):
