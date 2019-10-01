@@ -10,9 +10,9 @@ from bson import ObjectId
 quiz = Blueprint('quiz', __name__)
 
 # deprecated
+# @quiz.route('/module/quiz/id/<moduleId>', methods=['POST'])
 
 
-@quiz.route('/module/quiz/id/<moduleId>', methods=['POST'])
 def create_bulk(moduleId):
     """
     If you have a complete quiz pass it here and it will populate
@@ -95,6 +95,8 @@ def create_or_get_quiz(id_):
         return Response('Failed: invalid Id', 400)
 
     if request.method == 'POST':
+        if not Module.objects(id=id_):
+            return Response('Failed: invalid module Id', 400)
         if request.content_type != 'application/json':
             return Response('Failed: Content-type must be application/json', 401)
         r = request.get_json()
@@ -168,7 +170,7 @@ def create_or_get_question(id_):
         try:
             question = Question(question_text=r['question_text'], word=word)
             question.save()
-            Quiz.objects(id=id_).update_one(add_to_set__questions=question)
+            Quiz.objects(id=id_).update_one(push__questions=question)
         except:
             return Response('Failed: invalid request', 400)
         return Response('Success', 200)
@@ -209,7 +211,7 @@ def grade_and_verify(list):
                 count += 1
         else:
             return Response('Failed: invalid question Id', 400)
-    return count
+    return (count / len(list)) * 100
 
 
 @quiz.route('/module/quiz', methods=['POST'])
@@ -232,11 +234,14 @@ def submit_quiz():
     except:
         return Response('Failed: invalid Id(s)', 400)
 
+    # check if the quiz is part of the module
+    if not Module.objects(id=module.id, quiz=quiz):
+        return Response('Failed: quiz is not a member of module', 400)
+
     # this is all kinda nightmare fuel but it works
     sub = Submission(user_id=user.id, quiz_id=quiz.id, module_id=module.id)
     sub.grade = grade_and_verify(r['user_answers'])
     answers = []
-    ans = r['user_answers']
     for i in r['user_answers']:
         answers.append(UserAnswers(
             question_id=i['question_id'], user_answer=i['user_answer']))
