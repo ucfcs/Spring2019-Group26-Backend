@@ -2,6 +2,7 @@
 
 from asltutor.database import db
 import argparse
+import sys
 from asltutor.models.module import Module
 from asltutor.models.quiz import Quiz, Question
 from asltutor.models.dictionary import Dictionary
@@ -127,22 +128,18 @@ def add_all():
 
         quiz_1 = Quiz(quiz_name='Test quiz 1',
                       details='This is the first test quiz', questions=[q0, q1, q2, q3, q4])
-        quiz_1.number_of_questions = len(quiz_1.questions)
         quiz_1.save()
 
         quiz_2 = Quiz(quiz_name='Test quiz 2',
                       details='This is the second test quiz', questions=[q5, q8, q9])
-        quiz_2.number_of_questions = len(quiz_2.questions)
         quiz_2.save()
 
         quiz_3 = Quiz(quiz_name='Test quiz 3',
                       details='This is the third test quiz', questions=[q3, q5, q6, q7])
-        quiz_3.number_of_questions = len(quiz_3.questions)
         quiz_3.save()
 
         quiz_4 = Quiz(quiz_name='Test quiz 4',
                       details='This is the forth test quiz', questions=[q6, q8])
-        quiz_4.number_of_questions = len(quiz_2.questions)
         quiz_4.save()
 
         mod_1 = Module(module_name='Test module 1', details='This is the first module', words=[
@@ -159,16 +156,13 @@ def add_all():
         mod_3.save()
 
         mod_3.parent = mod_2.id
-        mod_3.number_of_words = len(mod_3.words)
         mod_3.save()
 
         mod_2.parent = mod_1.id
-        mod_2.number_of_words = len(mod_2.words)
         mod_2.child = mod_3.id
         mod_2.save()
 
         mod_1.child = mod_2.id
-        mod_1.number_of_words = len(mod_1.words)
         mod_1.save()
 
         user_1 = User(username='baba_yaga', firstname='jon', lastname='wick', dob='1964-09-02',
@@ -188,6 +182,23 @@ def add_all():
         sub_1 = Submission(user_id=user_1, quiz_id=quiz_1, module_id=mod_1, user_answers=[
             ans0, ans1, ans2, ans3, ans4], grade=4)
         sub_1.save()
+
+        ans5 = UserAnswers(question_id=q3.id, user_answer=q3.word.word)
+        ans6 = UserAnswers(question_id=q5.id, user_answer=q5.word.word)
+        ans7 = UserAnswers(question_id=q6.id, user_answer=q6.word.word)
+        ans8 = UserAnswers(question_id=q7.id, user_answer=q7.word.word)
+
+        sub_2 = Submission(user_id=user_1, quiz_id=quiz_3, module_id=mod_2, user_answers=[
+            ans5, ans6, ans7, ans8], grade=4)
+        sub_2.save()
+
+        ans9 = UserAnswers(question_id=q6.id, user_answer=word_foo.word)
+        ans10 = UserAnswers(question_id=q8.id, user_answer=word_bar.word)
+
+        sub_3 = Submission(user_id=user_1, quiz_id=quiz_4, module_id=mod_2, user_answers=[
+            ans9, ans10], grade=0)
+        sub_3.save()
+
     except Exception:
         print("An error occured filling the database.")
         print("================== ERROR =====================")
@@ -232,6 +243,9 @@ ppgroup.add_argument('-pp',
 ppgroup.add_argument('-o',
                      help='Specify an object Id to pretty print', dest='ObjectId')
 
+if len(sys.argv) == 1:
+    parser.print_help(sys.stderr)
+    sys.exit(1)
 
 args = parser.parse_args()
 if args.fill:
