@@ -15,6 +15,8 @@ Make a directory and clone the repo into it
 ---
 # Running the server
 
+For all methods requests will be directed to `http://localhost:1337/`
+
 ## Build/Start the vagrant box and login
 From the terminal `cd` into the project root (you should see a `Vagrantfile`) then run the following commands:
 
@@ -33,7 +35,7 @@ chmod +x deploy.sh
 The deploy script will seem like it is hanging, there 40 seconds wait to make sure
 mongo is started
 
-If you make changes and they do not automatically take affect run:
+If you make changes and they do not automatically take effect run:
 ```bash
 sudo systemctl restart asltutor
 ```
@@ -66,29 +68,29 @@ chmod +x runuwsgi.sh
 ./runuwsgi.sh
 ```
 
-    After the first time running it using uwsgi control it using systemd
-    - To stop:
-    ```bash
-    sudo systemctl stop asltutor
-    ```
-    - To start:
-    ```bash
-    sudo systemctl start asltutor
-    ```
-    - To restart:
-    ```bash
-    sudo systemctl restart asltutor
-    ```
-    - To check status run respectively:
-    ```bash
-    sudo systemctl status mongod
-    sudo systemctl status asltutor
-    ```
+After the first time running it using uwsgi control it using systemd
+- To stop:
+```bash
+sudo systemctl stop asltutor
+```
+- To start:
+```bash
+sudo systemctl start asltutor
+```
+- To restart:
+```bash
+sudo systemctl restart asltutor
+```
+- To check status run respectively:
+```bash
+sudo systemctl status mongod
+sudo systemctl status asltutor
+```
 
 3. Follow the commands for front end to test deployment and operation\
     **<span style="color:red">Always test using the deployment script before making a PR</span>**
 ---
-# Trouble shooting errors
+# Troubleshooting errors
 If you are getting an internal server error or you can hit `hello world` but nothing else   the most likely cause is mongo has not been started or was not running before asltutor started
 
 ## To start diagnosing the problem we start by checking mongo

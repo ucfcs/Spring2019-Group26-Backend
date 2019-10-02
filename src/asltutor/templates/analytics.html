@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include "header.html" %}
+<body>
+	<div class="content">
+		{% include "nav.html" %}
+		<div class="analytics">
+			<h1>Analytics</h1>
+			<table>
+				<tr class="table-head">
+					<th>Word</th>
+					<th>URL</th>
+					<th>Times Requested</th>
+				</tr>
+				{% for item in items %}
+				<tr>
+					<td>{{item.word}}</td>
+					<td>{{item.url}}</td>
+					<td>{{item.times_requested}}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+</html>
