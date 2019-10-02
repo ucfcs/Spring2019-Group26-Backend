@@ -155,6 +155,9 @@ sudo pip install tox
 tox
 ```
 
+## Backend Documentation
+Documentation is up for all existing endpoints. Navigate to `http://localhost:1337/v1/docs` to view the docs. The documentation is interactive so you can use it to send requests if you would like.
+
 ## Running with Docker
 
 To run the server on a Docker container, please execute the following from the root directory:
