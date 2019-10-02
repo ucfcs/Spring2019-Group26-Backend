@@ -1,0 +1,8 @@
+#!/bin/bash
+cd /home/ubuntu/Spring2019-Group26-Backend/src/asltutor
+python3 -m venv venv
+source venv/bin/activate
+cd ..
+pip install -r requirements.txt
+python setup.py develop
+deactivate
