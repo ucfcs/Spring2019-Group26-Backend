@@ -1,0 +1,6 @@
+#!/bin/bash
+# TODO: change to if not
+isExistApp = `pgrep mongod.service`
+if [[ -n  $isExistApp ]]; then
+    systemctl stop asltutor.service
+fi
