@@ -452,7 +452,7 @@ paths:
             format: ObjectId
       responses:
         '200':
-          description: 'Success: all quiz object has been returned'
+          description: 'Success: quiz object returned'
           content:
             application/json:
               schema:
@@ -697,7 +697,7 @@ components:
           type: string
           format: ObjectId
       example:
-        id: 5d8d6c0955c9083ebfeae8c7
+        id: someId
     GetSubmission:
       description: Content received when a user gets a submission
       type: object
@@ -904,11 +904,11 @@ components:
           items:
             $ref: '#/components/schemas/GetQuiz'
       example:
-        id: 5d8d3dc02e1032bc82d7aa4d
+        id: someId
         module_name: Test module
         details: This is a test module
-        parent: 5d8d3dc02e1032bc82d7aa4c
-        child: 5d8d3dc02e1032bc82d7aa4e
+        parent: someId
+        child: someId
         words:
           - $ref: '#/components/schemas/GetDictionary'
         quiz:
@@ -924,7 +924,7 @@ components:
           format: ObjectId
       example:
         question_text: Hi this is a test
-        word: 5d8d3dc02e1032bc82d7aa3a
+        word: someId
     GetQuestion:
       allOf:
         - $ref: '#/components/schemas/PostQuestion'
@@ -934,7 +934,7 @@ components:
           type: string
           format: ObjectId
       example:
-        id: '5d8d6c0955c9083ebfeae8c7'
+        id: 'someId'
     PostQuiz:
       description: Content received when a user gets a submission
       type: object
@@ -955,4 +955,4 @@ components:
           type: string
           format: ObjectId
       example:
-        id: '5d8d6c0955c9083ebfeae8c7'
+        id: 'someId'
