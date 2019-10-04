@@ -26,7 +26,7 @@ def create_user():
     :rtype: None
     """
     if request.is_json is None:
-        return Response('Failed: Content-type must be application/json', 401)
+        return Response('Failed: Content-type must be application/json', 415)
 
     r = request.get_json()
     newUser = User(**r)
@@ -98,7 +98,7 @@ def login():
     :rtype: str
     """
     if request.is_json is None:
-        return Response('Failed: Content-type must be application/json', 401)
+        return Response('Failed: Content-type must be application/json', 415)
     content = request.get_json()
     username = content['username']
     password = content['password']

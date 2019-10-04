@@ -27,7 +27,7 @@ def create_bulk(moduleId):
 
     # check for json
     if request.content_type != 'application/json':
-        return Response('Failed: Content-type must be application/json', 401)
+        return Response('Failed: Content-type must be application/json', 415)
 
     r = request.get_json()
     """
@@ -98,7 +98,7 @@ def create_or_get_quiz(id_):
         if not Module.objects(id=id_):
             return Response('Failed: invalid module Id', 400)
         if request.content_type != 'application/json':
-            return Response('Failed: Content-type must be application/json', 401)
+            return Response('Failed: Content-type must be application/json', 415)
         r = request.get_json()
         try:
             quiz = Quiz(**r)
@@ -160,7 +160,7 @@ def create_or_get_question(id_):
 
     if request.method == 'POST':
         if request.content_type != 'application/json':
-            return Response('Failed: Content-type must be application/json', 401)
+            return Response('Failed: Content-type must be application/json', 415)
         r = request.get_json()
         if not ObjectId.is_valid(r['word']):
             return Response('Failed: invalid Id', 400)
@@ -223,16 +223,19 @@ def submit_quiz():
     :rtype: none
     """
     if request.content_type != 'application/json':
-        return Response('Failed: Content-type must be application/json', 401)
+        return Response('Failed: Content-type must be application/json', 415)
     r = request.get_json()
 
-    # if this fails either the oids are invalid or the entries do not exist
-    try:
-        user = User.objects.get(id=r['user_id'])
-        quiz = Quiz.objects.get(id=r['quiz_id'])
-        module = Module.objects.get(id=r['module_id'])
-    except:
-        return Response('Failed: invalid Id(s)', 400)
+    # check if the oids are valid and exist
+    err = User.error_checker(r['user_id'])
+    if err:
+        return err
+    err = Quiz.error_checker(id=r['quiz_id'])
+    if err:
+        return err
+    err = Module.error_checker(id=r['module_id'])
+    if err:
+        return err
 
     # check if the quiz is part of the module
     if not Module.objects(id=module.id, quiz=quiz):

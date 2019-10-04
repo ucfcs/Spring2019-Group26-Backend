@@ -1,5 +1,6 @@
 from asltutor.models.dictionary import Dictionary
 from asltutor.models.submission import Submission
+from asltutor.models.module import Module
 from asltutor.models.user import User
 from flask import Blueprint
 from flask import request, Response
@@ -83,36 +84,39 @@ def get_submissions():
     moduleId = request.args.get('module', None)
 
     if submissionId:
-        if ObjectId.is_valid(submissionId):
-            # submission cannot be combined with other queries
-            if not username and not quizId and not moduleId:
-                return Response(Submission.objects.get_or_404(id=submissionId).to_json(), mimetype='application/json')
-            else:
-                return Response('Failed: Submission query cannot be combined with other queries', 400)
+        err = Submission.error_checker(submissionId)
+        # if submission id is wrong throw error
+        if err:
+            return err
+         # submission cannot be combined with other queries
+        elif username or quizId or moduleId:
+            return Response('Failed: Submission query cannot be combined with other queries', 400)
+        # submission id is corrent and no other queries have been specified
         else:
-            return Response('Failed: invalid Id', 400)
+            return Response(Submission.objects.get(id=submissionId).to_json(), mimetype='application/json')
+    else:
+        # if submissionId is not specified do further filtering
+        subs = Submission.objects()
+        if not username and not quizId and not moduleId:
+            return Response('Failed: specify at least one filter to view submissions', 412)
 
-    # if submissionId is not specified do further filtering
-    subs = Submission.objects()
-    if not username and not quizId and not moduleId:
-        return Response('Failed: specify at least one filter to view submissions', 412)
+        if username:
+            if User.objects(username=username):
+                user = User.objects.get(username=username)
+                subs = subs.filter(user_id__exact=user.id)
 
-    if username:
-        user = User.objects.get_or_404(username=username)
-        subs = subs.filter(user_id__exact=user.id)
-
-    if moduleId:
-        if ObjectId.is_valid(moduleId):
+        if moduleId:
+            err = Module.error_checker(moduleId)
+            if err:
+                return Response(err)
             subs = subs.filter(module_id__exact=moduleId)
-        else:
-            return Response('Failed: invalid Id', 400)
 
-    if quizId:
-        if ObjectId.is_valid(quizId):
+        if quizId:
+            err = Module.error_checker(quizId)
+            if err:
+                return Response(err)
             subs = Submission.objects(quiz_id__exact=quizId)
-        else:
-            return Response('Failed: invalid Id', 400)
 
-    if subs:
-        return Response(subs.to_json(), mimetype='application/json')
-    return Response('Failed: No submission found for that query')
+        if subs:
+            return Response(subs.to_json(), mimetype='application/json')
+    return Response('Failed: No submission found for that query', 204)

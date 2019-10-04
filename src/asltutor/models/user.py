@@ -5,6 +5,8 @@ from asltutor.models.module import Module
 from datetime import datetime
 import flask_mongoengine as fm
 import mongoengine_goodjson as gj
+from flask import Response
+from bson import ObjectId
 
 
 class QuerySet(fm.BaseQuerySet, gj.QuerySet):
@@ -45,3 +47,10 @@ class User(Document, UserMixin):
 
     def get_id(self):
         return str(self.id)
+
+    def error_checker(id):
+        if not ObjectId.is_valid(id):
+            return Response('Failed: invalid Id', 400)
+
+        if not User.objects(id=id):
+            return Response('', 204)

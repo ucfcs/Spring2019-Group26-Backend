@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from asltutor.database import db
 import flask_mongoengine as fm
 import mongoengine_goodjson as gj
+from flask import Response
+from bson import ObjectId
 
 
 class QuerySet(fm.BaseQuerySet, gj.QuerySet):
@@ -22,3 +24,10 @@ class Dictionary(Document):
     url = db.URLField(unique=True)
     in_dictionary = db.BooleanField(default=False)
     times_requested = db.IntField()
+
+    def error_checker(id):
+        if not ObjectId.is_valid(id):
+            return Response('Failed: invalid Id', 400)
+
+        if not Dictionary.objects(id=id):
+            return Response('', 204)

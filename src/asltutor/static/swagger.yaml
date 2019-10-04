@@ -236,8 +236,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetDictionary'
-        '404':
-          description: 'Failed: Word not found'
+        '204':
+          description: 'No content'
   /dictionary/create:
     post:
       tags:
@@ -253,8 +253,57 @@ paths:
       responses:
         '200':
           description: 'Success: word added to dictionary'
-        '401':
+        '415':
           description: 'Failed: Content-type must be application/json'
+  /dictionary/delete:
+    post:
+      tags:
+        - dictionary
+      summary: Delete a word from the dictionary
+      description: Admins are able to delete a word from the dictionary
+      parameters:
+        - name: input
+          in: query
+          description: Word the admin wants to delete
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+            example: test
+      responses:
+        '200':
+          description: 'Success: word deleted from the dictionary'
+        '204':
+          description: 'No content'
+  /dictionary/search:
+    get:
+      tags:
+        - dictionary
+      summary: Search for a word in the dictionary
+      description: >-
+        Returns all words that contain the substring of the provided input
+      parameters:
+        - name: input
+          in: query
+          description: Input the user wants to search for
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+            example: test
+      responses:
+        '200':
+          description: 'Success: word object returned'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetDictionary'
+        '204':
+          description: 'No content'
   /module:
     get:
       tags:
@@ -268,11 +317,13 @@ paths:
         '200':
           description: >-
             Sucess: returning an array of objects containing module names, Ids,
-            details and child and parent objectIds
+            details and parent objectIds
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetInfoModule'
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetInfoModule'
   /module/create:
     post:
       tags:
@@ -289,8 +340,14 @@ paths:
       responses:
         '200':
           description: 'Success: module created'
-        '401':
+        '204':
+          description: 'No content'
+        '400':
+          description: 'Failed: invalid Id'
+        '415':
           description: 'Failed: Content-type must be application/json'
+
+
   /module/addword:
     post:
       tags:
@@ -316,7 +373,7 @@ paths:
           description: 'Success: word added to module'
         '400':
           description: 'Failed: invalid Id'
-        '401':
+        '415':
           description: 'Failed: Content-type must be application/json'
         '404':
           description: 'Failed: word or module not found'
@@ -327,7 +384,7 @@ paths:
       summary: Deletes the module and all of it quizzes from the database.
       description: >-
         Deletes the module and all of it's quizzes from the database. Also
-        adjusts the it's parents and/or children
+        adjusts it's parent and/or child nodes
       parameters:
         - name: moduleId
           in: path
@@ -401,7 +458,7 @@ paths:
                 $ref: '#/components/schemas/BulkCreateQuiz'
         '400':
           description: 'Failed: invalid entries'
-        '401':
+        '415':
           description: 'Failed: Content-type must be application/json'
   '/module/quiz/id/{id}':
     post:
@@ -431,7 +488,7 @@ paths:
           description: 'Success: Quiz has been created for a module'
         '400':
           description: 'Failed: invalid Id'
-        '401':
+        '415':
           description: 'Failed: Content-type must be application/json'
         '500':
           description: 'Failed: server error'
@@ -490,7 +547,7 @@ paths:
           description: 'Success: all question objects have been returned'
         '400':
           description: 'Failed: invalid entries'
-        '401':
+        '415':
           description: 'Failed: Content-type must be application/json'
         '500':
           description: 'Failed: server error'
@@ -586,7 +643,7 @@ paths:
           description: 'Success: Submission has been posted'
         '400':
           description: 'Failed: invalid Id(s)'
-        '401':
+        '415':
           description: 'Failed: Content-type must be application/json'
 components:
   schemas:
@@ -825,16 +882,9 @@ components:
             The module Id of the module that you must complete before accessing
             this module
           format: ObjectId
-        child:
-          type: string
-          description: >-
-            The module Id of the module that you must complete before accessing
-            this module
-          format: ObjectId
       example:
         id: id
         parent: parent
-        child: child
         moduleName: 'Module One: Greetings'
         details: >-
           In this module you will learn basic the basics of ASL and how to greet
@@ -850,9 +900,6 @@ components:
         parent:
           type: string
           format: ObjectId
-        child:
-          type: string
-          format: ObjectId
         words:
           type: array
           description: An array of all the words Ids included in the module
@@ -865,11 +912,13 @@ components:
           items:
             type: string
             format: ObjectId
+      required:
+        - module_name
+        - details
       example:
         module_name: Test module
         details: This is a test module
         parent: someId
-        child: someId
         words:
           - someId
           - someId
@@ -890,9 +939,6 @@ components:
         parent:
           type: string
           format: ObjectId
-        child:
-          type: string
-          format: ObjectId
         words:
           type: array
           description: An array of all the word objects included in the module
@@ -908,7 +954,6 @@ components:
         module_name: Test module
         details: This is a test module
         parent: someId
-        child: someId
         words:
           - $ref: '#/components/schemas/GetDictionary'
         quiz:
