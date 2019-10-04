@@ -159,10 +159,8 @@ def add_all():
         mod_3.save()
 
         mod_2.parent = mod_1.id
-        mod_2.child = mod_3.id
         mod_2.save()
 
-        mod_1.child = mod_2.id
         mod_1.save()
 
         user_1 = User(username='baba_yaga', firstname='jon', lastname='wick', dob='1964-09-02',
