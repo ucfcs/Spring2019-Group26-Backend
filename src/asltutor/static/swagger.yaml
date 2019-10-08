@@ -149,7 +149,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GetDictionary'
+                  $ref: '#/components/schemas/GetWord'
   /admin/submissions:
     get:
       tags:
@@ -215,27 +215,41 @@ paths:
     get:
       tags:
         - dictionary
+      summary: Get a list of all words that we have animations for
+      description: Returns a list objects containing word and ObjectId where in_dictionary is true
+      responses:
+        '200':
+          description: 'Success: word object list returned'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetDictionary'
+  /dictionary/{word}:
+    get:
+      tags:
+        - dictionary
       summary: Get an ASL definition from the dictionary
       description: >-
         Returns a URL location of the ASL animation corresponding to the input
         given
       parameters:
-        - name: input
-          in: query
-          description: Input the user wants a translation for
-          required: true
-          style: form
-          explode: true
-          schema:
-            type: string
-            example: test
+      - name: word
+        in: path
+        description: 'The word a user wants to get'
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
         '200':
           description: 'Success: word object returned'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetDictionary'
+                $ref: '#/components/schemas/GetWord'
         '204':
           description: 'No content'
   /dictionary/create:
@@ -246,7 +260,7 @@ paths:
       description: Admins are able to add an ASL animation to our dictionary
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: '#/components/schemas/PostDictionary'
         required: true
@@ -301,7 +315,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GetDictionary'
+                  $ref: '#/components/schemas/GetWord'
         '204':
           description: 'No content'
   /module:
@@ -728,33 +742,48 @@ components:
       description: Word object
       type: object
       properties:
-        id:
-          type: string
-          format: ObjectId
         word:
           type: string
-        url:
+        file:
           type: string
-          format: uri
-        in_dictionary:
-          type: boolean
+          format: binary
       example:
-        in_dictionary: false
         word: test
-        url: http://test.com
       required:
-        - in_dictionary
         - word
-    GetDictionary:
-      allOf:
-        - $ref: '#/components/schemas/PostDictionary'
+        - file
+    GetWord:
+      description: Word object
       type: object
       properties:
         id:
           type: string
           format: ObjectId
+        word:
+          type: string
+        in_dictionary:
+          type: boolean
+        url:
+          type: string
+          format: uri
+        times_requested:
+          type: integer
+          format: int32
       example:
         id: someId
+        word: test
+        in_dictionary: true
+        url: https://asl.bucket.com/test
+        times_requested: 5
+    GetDictionary:
+      description: Word object containing word and Id
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+        word:
+          type: string
     GetSubmission:
       description: Content received when a user gets a submission
       type: object
@@ -943,7 +972,7 @@ components:
           type: array
           description: An array of all the word objects included in the module
           items:
-            $ref: '#/components/schemas/GetDictionary'
+            $ref: '#/components/schemas/GetWord'
         quiz:
           type: array
           description: An array of all the quiz objects included in the module
@@ -955,7 +984,7 @@ components:
         details: This is a test module
         parent: someId
         words:
-          - $ref: '#/components/schemas/GetDictionary'
+          - $ref: '#/components/schemas/GetWord'
         quiz:
           - $ref: '#/components/schemas/GetQuiz'
     PostQuestion:
