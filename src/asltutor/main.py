@@ -5,23 +5,24 @@ from asltutor import settings, database, login_manager
 import jwt
 from mongoengine import *
 from flask_swagger_ui import get_swaggerui_blueprint
+from flask import request, Response
 
+DEV = True
 
 app = Flask(__name__)
 
-app.config.from_object(settings.DevelopmentConfig)
+if DEV:
+    app.config.from_object(settings.DevelopmentConfig)
+else:
+    app.config.from_object(settings.ProductionConfig)
 
 # MongoDB
 database.db.init_app(app)
 
-# Flask Security
-# not sure when this will actually end up used, for now using JWT
-login_manager.lm.init_app(app)
+from asltutor import s3_helper
+from werkzeug import secure_filename
+from flask import render_template
 
-
-@app.route('/')
-def hello():
-    return 'hello world'
 
 # Dictionary
 # Module
