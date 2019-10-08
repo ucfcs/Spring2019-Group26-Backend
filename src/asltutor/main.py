@@ -19,11 +19,6 @@ else:
 # MongoDB
 database.db.init_app(app)
 
-from asltutor import s3_helper
-from werkzeug import secure_filename
-from flask import render_template
-
-
 # Dictionary
 # Module
 # Quiz
