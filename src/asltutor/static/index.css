@@ -9,6 +9,7 @@ body {
 	font-weight: 400;
 	letter-spacing: -.01em;
 	font-family: "SF Pro Text","Myriad Set Pro","SF Pro Icons","Helvetica Neue","Helvetica","Arial",sans-serif;
+	text-align: center;
 }
 
 table {
@@ -67,7 +68,7 @@ tr:first-child {
 	background-color: rgb(255, 255, 255);
 }
 
-.welcome div.content {
+.welcome div.content, .crowd-sourcing {
 	max-width: 42.8rem;
 	margin: 0 auto;
 	font-size: 1.5em;
@@ -106,4 +107,36 @@ tr:first-child {
 
 .analytics table {
 	margin-top: 1rem;
+}
+
+.crowd-sourcing form {
+	width: 70%;
+	text-align: left;
+}
+
+.crowd-sourcing input {
+	font-size: 1rem;
+}
+
+.crowd-sourcing input[type="text"] {
+	padding: 0 .94118rem;
+	line-height: 1.23543;
+	border: 1px solid #d6d6d6;
+	color: #333;
+	box-shadow: none;
+	height: 3.3rem;
+	width: 100%;
+	border-radius: 4px;
+}
+
+.crowd-sourcing button {
+	font-size: 1rem;
+	padding: .76471rem .88235rem .82353rem;
+	box-sizing: border-box;
+	border: 1px solid #07c;
+	background-color: #0070c9;
+	background: linear-gradient(#42a1ec,#0070c9);
+	color: #fff;
+	width: 100%;
+	border-radius: 4px;
 }
