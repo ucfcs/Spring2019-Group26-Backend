@@ -41,6 +41,8 @@ sudo systemctl restart asltutor
 ```
 
 ## To run the server for backend development
+For development you will need to add `S3_BUCKET`, `S3_KEY`, and `S3_SECRET_ACCESS_KEY` to the `DevelopmentConfig` section of the `settings.py` file. You will also need to change the `DEV` flag to `True` in the `main.py` file.
+
 From the terminal run the following commands:
 ```bash
 cd ~/Spring2019-Group26-Backend
