@@ -27,10 +27,9 @@ def create_module():
     # build and save the module
     try:
         mod = Module(module_name=r['module_name'], details=r['details'])
-    except NotUniqueError as e:
-        for field in Module._fields:
-            if field in str(e):
-                return Response('Failed: field {} is already taken'.format(field), 409)
+    except Exception as e:
+        print(e)
+        return Response('Failed: Bad request', 400)
 
     # save it so we have an Id to reference
     mod.save()
@@ -79,7 +78,8 @@ def create_module():
 
     try:
         mod.save()
-    except NotUniqueError as e:
+    except Exception as e:
+        print(e)
         if old_id:
             Module.objects(parent=r['parent']).update_one(parent=old_id)
 
