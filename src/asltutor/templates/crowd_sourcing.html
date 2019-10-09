@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 {% set title="Crowd Sourcing" %}
+{% set script="js/crowd_sourcing.js" %}
 {% include "header.html" %}
 <body>
 	<div class="content">
@@ -8,11 +9,12 @@
 		{% include "nav.html" %}
 		<div class="crowd-sourcing">
 			<h1>Crowd Sourcing</h1>
-			<form method="POST" action="/v1/dictionary/create">
+			<form id="animationForm" action="/v1/dictionary/create">
 				<h3>Upload an Animation for a Word:</h3>
 				<input type="text" name="word" placeholder="Word" /><br />
 				<input type="file" name="file" placeholder="Animation" /><br />
 				<button type="submit">Submit</button>
+				<div class="errors" style="display: none;"></div>
 			</form>
 		</div>
 	</div>

@@ -30,6 +30,11 @@ tr:first-child {
 	color: rgb(255, 255, 255);
 }
 
+.errors {
+	color: rgb(255, 0, 0);
+	font-size: 1rem;
+}
+
 .nav {
 	background-color: rgba(0,0,0,0.8);
 }
@@ -139,4 +144,5 @@ tr:first-child {
 	color: #fff;
 	width: 100%;
 	border-radius: 4px;
+	margin-top: 0.5rem;
 }
