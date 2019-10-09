@@ -34,9 +34,6 @@ class User(Document, UserMixin):
     dob = db.DateTimeField(required=True)
     creation_date = db.DateTimeField()
     last_login = db.DateTimeField()
-    email = db.EmailField(required=True, unique=True)
-    password = db.StringField(required=True)
-    is_verified = db.BooleanField(default=False)
     is_active = db.BooleanField(default=False)
     completed_modules = db.ListField(
         db.EmbeddedDocumentField(Completed_Modules))

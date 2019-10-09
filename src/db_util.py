@@ -9,7 +9,6 @@ from asltutor.models.dictionary import Dictionary
 from asltutor.models.submission import Submission, UserAnswers
 from asltutor.models.user import User, Completed_Modules
 from datetime import datetime
-from passlib.hash import pbkdf2_sha256
 import traceback
 import pprint
 import json
@@ -163,8 +162,8 @@ def add_all():
 
         mod_1.save()
 
-        user_1 = User(username='baba_yaga', firstname='jon', lastname='wick', dob='1964-09-02',
-                      email='babayaga64@gmail.com', password=pbkdf2_sha256.hash('willkillugood'))
+        user_1 = User(username='baba_yaga', firstname='jon',
+                      lastname='wick', dob='1964-09-02')
         user_1.creation_date = '2019-09-13 15:47:18.171396'
         comp1 = Completed_Modules(
             module_id=mod_1.id, module_name=mod_1.module_name)

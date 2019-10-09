@@ -18,7 +18,6 @@ def upload_file_to_s3(file):
     """
 
     try:
-
         s3.upload_fileobj(
             file,
             app.config['S3_BUCKET'],
@@ -28,7 +27,6 @@ def upload_file_to_s3(file):
                 'ContentType': file.content_type
             }
         )
-
     except Exception as e:
         print('Something Happened: ', e)
         return e

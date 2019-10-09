@@ -50,7 +50,7 @@ def get_user_stats():
     :rtype: json
     """
     num_users = User.objects.count()
-    num_verified = User.objects(is_verified=True).count()
+    num_verified = User.objects().count()
 
     num_submission = Submission.objects.count()
     # avg_age = User.objects
