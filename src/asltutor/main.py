@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from flask import Flask
-from asltutor import settings, database, login_manager
+from asltutor import settings, database
 import jwt
 from mongoengine import *
 from flask_swagger_ui import get_swaggerui_blueprint
