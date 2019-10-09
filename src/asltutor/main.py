@@ -4,7 +4,7 @@ from flask import Flask, render_template
 from asltutor import settings, database, login_manager
 import jwt
 from mongoengine import *
-
+from flask_swagger_ui import get_swaggerui_blueprint
 
 
 app = Flask(__name__)
@@ -15,9 +15,8 @@ app.config.from_object(settings.DevelopmentConfig)
 database.db.init_app(app)
 
 # Flask Security
-#not sure when this will actually end up used, for now using JWT
+# not sure when this will actually end up used, for now using JWT
 login_manager.lm.init_app(app)
-
 
 
 @app.route('/')
@@ -39,7 +38,6 @@ def show_login():
 def show_crowd_source():
     return render_template('crowd_sourcing.html')
 
-# Auth
 # Dictionary
 # Module
 # Quiz
@@ -47,6 +45,22 @@ def show_crowd_source():
 # Submission
 # User
 
+
+"""
+Swagger docs
+"""
+
+SWAGGER_URL = '/v1/docs'
+API_URL = '/static/swagger.yaml'
+
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': 'ASLTutor docs'
+    })
+
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 from asltutor.controllers.dictionary_controller import dictionary
 app.register_blueprint(dictionary, url_prefix='/v1')
@@ -57,12 +71,11 @@ app.register_blueprint(user, url_prefix='/v1')
 from asltutor.controllers.quiz_controller import quiz
 app.register_blueprint(quiz, url_prefix='/v1')
 
-from asltutor.controllers.stats_controller import stats
-app.register_blueprint(stats, url_prefix='/v1')
+from asltutor.controllers.admin_controller import admin
+app.register_blueprint(admin, url_prefix='/v1')
 
 from asltutor.controllers.module_controller import module
 app.register_blueprint(module, url_prefix='/v1')
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

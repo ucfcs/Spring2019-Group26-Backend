@@ -1,4 +1,5 @@
 from asltutor.models.module import Module
+from asltutor.models.dictionary import Dictionary
 from flask import request, Response
 from flask import Blueprint
 from bson import ObjectId
@@ -6,7 +7,7 @@ from bson import ObjectId
 module = Blueprint('module', __name__)
 
 
-@module.route('/module', methods=['POST'])
+@module.route('/module/create', methods=['POST'])
 def create_module():
     """Create a module
 
@@ -16,76 +17,107 @@ def create_module():
 
     :rtype: None
     """
-    if request.content_type == 'application/json':
-        r = request.get_json()
-        o = Module(**r)
-        o.number_of_words = len(r['words'])
-        o.save()
-        return Response('Success', 200)
-    return Response('Failed: Content must be json', 400)
+    # TODO: Make sure the parent child relationship is handled correctly and error handling
+    if request.content_type != 'application/json':
+        return Response('Failed: Content-type must be application/json', 401)
+
+    r = request.get_json()
+
+    o = Module(**r)
+    try:
+        o.validate()
+    except:
+        return Response('Failed: invalid Id', 400)
+    o.save()
+    return Response('Success', 200)
+
+@module.route('/module/addword', methods=['POST'])
+def add_word():
+    """Add a word to an existing module
+
+    An admin will be able to add a word to an existing module
+
+    request body
+
+    :rtype: None
+    """
+    if request.content_type != 'application/json':
+        return Response('Failed: Content-type must be application/json', 401)
+
+    r = request.get_json()
+
+    if not ObjectId.is_valid(r['word_id']) or not ObjectId.is_valid(r['module_id']):
+        return Response('Failed: invalid Id', 400)
+
+    word = Dictionary.objects.get_or_404(id=r['word_id'])
+    try:
+        Module.objects(id=r['module_id']).update_one(push__words=word)
+    except:
+        return Response('Failed: module does not exist', 404)
+    return Response('Success', 200)
 
 
-@module.route('/module', methods=['DELETE'])
-def delete_module():
+@module.route('/module/delete/id/<moduleId>', methods=['POST'])
+def delete_module(moduleId):
     """Delete a module from the database
 
     Deletes the module and all of it quizzes from the database.
     Must also adjust the it's parents and/or children. Can use
     either objectId or the module name
 
-    query parameter: /module?input=input
-    input can be an objectId or a module name
+    :param moduleId: The Id of the module that an admin is deleting.
+    :type submissionId: str
 
     :rtype: None
     """
-    input_ = request.args.get('input')
-    if ObjectId.is_valid(input_):
-        o = Module.objects.get_or_404(id=input_)
+    if not ObjectId.is_valid(moduleId):
+        return Response('Failed: invalid Id', 400)
+
+    o = Module.objects.get_or_404(id=moduleId)
+
+    # link up the parents to the new children and vice versa.
+    # Unlink if no parents or children exist.
+    if o.parent != None:
+        if o.child != None:
+            # parent exists, child exists
+            Module.objects(id=o.parent).update_one(child=o.child)
+            Module.objects(id=o.child).update_one(parent=o.parent)
+        else:
+            # parent exists, child does not exist
+            Module.objects(id=o.parent).update_one(child=None)
     else:
-        o = Module.objects.get_or_404(module_name=input_)
-        print(o.quiz)
+        # parent does not exist, child exists
+        Module.objects(id=o.child).update_one(parent=None)
+
     for e in o.quiz:
         e.delete()
     o.delete()
     return Response('Success', 200)
 
 
-@module.route('/module', methods=['PUT'])
-def edit_module():
-    """Edit an existing module
-
-    An admin will be able to edit existing learning modules.
-
-    :param body: The module object that the admin wants to edit
-    :type body: dict | bytes
-    :param module_id: The module Id of the module a user wants.
-    :type module_id: str
-
-    :rtype: None
-    """
-    pass
-
-
-@module.route('/module', methods=['GET'])
-def get_module():
+@module.route('/module/id/<moduleId>', methods=['GET'])
+def get_module(moduleId):
     """Get a specific module
 
     Get a single module givin a module Id
 
-    query parameter (optional): /module?oid=someObjectId
+    path parameter: /module/id/<objectId>
     no request body
 
     :rtype: json
     """
-    # check if a specific object Id was provided
-    if 'oid' in request.args:
-        # get the module object given a specific module Id
-        if ObjectId.is_valid(oid):
-            return Response(Module.objects.get_or_404(id=oid).to_json(), mimetype='application/json')
-        return Response('Failed: invalid Id', 400)
+    if ObjectId.is_valid(moduleId):
+        return Response(Module.objects.get_or_404(id=moduleId).to_json(), mimetype='application/json')
+    return Response('Failed: invalid Id', 400)
 
-    # Otherwise get a list of all modules available to the user.
-    # Excludes word and quiz lists to limit the response size.
-    # Ment to be used to get top level info about all modules.
-    else:
-        return Response(Module.objects.exclude('words', 'quiz').to_json(), mimetype='application/json')
+
+@module.route('/module', methods=['GET'])
+def get_all_modules():
+    """
+    Get a list of all modules available to the user.
+    Excludes word and quiz lists to limit the response size.
+    Ment to be used to get top level info about all modules.
+
+    :rtype: json
+    """
+    return Response(Module.objects.exclude('words', 'quiz').to_json(), mimetype='application/json')
