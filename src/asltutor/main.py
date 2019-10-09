@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from flask import Flask
+from flask import Flask, render_template
 from asltutor import settings, database, login_manager
 import jwt
 from mongoengine import *
@@ -21,7 +21,22 @@ login_manager.lm.init_app(app)
 
 @app.route('/')
 def hello():
-    return 'hello world'
+    return render_template('index.html')
+
+@app.route('/analytics')
+def analytics():
+    items = [
+        { "word": "test", "url": "test.com", "times_requested": 42 }
+    ]
+    return render_template('analytics.html', items=items)
+
+@app.route('/login')
+def show_login():
+    return render_template('login.html')
+
+@app.route('/crowd-source')
+def show_crowd_source():
+    return render_template('crowd_sourcing.html')
 
 # Dictionary
 # Module
