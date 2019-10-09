@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+{% set title="Analytics" %}
 {% include "header.html" %}
 <body>
 	<div class="content">
+		{% set navigation=[{"href": "/", "caption": "[Logo Goes Here]"},{"href": "/words", "caption": "Words"},{"href": "/modules", "caption": "Modules"},{"href": "/quizzes", "caption": "Quizzes"},{"href": "/logout", "caption": "Log Out"}] %}
 		{% include "nav.html" %}
 		<div class="analytics">
 			<h1>Analytics</h1>

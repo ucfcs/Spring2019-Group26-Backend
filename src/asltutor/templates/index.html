@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+{% set title = "Welcome" %}
 {% include "header.html" %}
 <body>
+	{% set navigation=[{"href": "/", "caption": "[Logo Goes Here]"},{"href": "/#product", "caption": "Product"},{"href": "/#about", "caption": "About Us"},{"href": "/#devs", "caption": "Development Team"},{"href": "/crowd-source", "caption": "Crowd Sourcing"}] %}
 	{% include "nav.html" %}
 	<div class="welcome">
 		<div id="product">
