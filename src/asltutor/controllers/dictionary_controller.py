@@ -42,8 +42,8 @@ def add_word():
     # TODO need to have admin validate the words
     if file:
         file.filename = secure_filename(file.filename)
-        output = s3_helper.upload_file_to_s3(file)
         try:
+            output = s3_helper.upload_file_to_s3(file)
             Dictionary(word=r['word'], url=output, in_dictionary=True).save()
         except Exception as e:
             print(e)
@@ -65,8 +65,17 @@ def delete_word():
     :rtype: None
     """
     input_ = request.args.get('input')
-    input_ = input_.lower()
-    if Dictionary.objects(word=input_).delete():
+    imput_ = ''.join(filter(str.isalpha, input_)).lower()
+    print(input_)
+    if Dictionary.objects(word=input_):
+        try:
+            url = Dictionary.objects.get(word=input_).url
+            url = url.split('/')
+            s3_helper.delete_file_from_s3(url[-1])
+            Dictionary.objects(word=input_).delete()
+        except Exception as e:
+            print(e)
+            return Response('Failed', 500)
         return Response('Success: word deleted from the dictionary', 200)
     return Response('Word not found', 204)
 
