@@ -24,9 +24,14 @@ def get_stats():
 
     :rtype: json
     """
-    limit = int(request.args.get('limit'))
-    if limit < 5 or limit > 100:
+    limit = request.args.get('limit', None)
+    if limit:
+        limit = int(limit)
+        if limit < 5 or limit > 100:
+            limit = 20
+    else:
         limit = 20
+
     o = Dictionary.objects(in_dictionary=False).order_by(
         '-times_requested')[:limit]
     return Response(o.to_json(), mimetype='application/json')

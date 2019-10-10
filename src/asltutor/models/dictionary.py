@@ -15,7 +15,8 @@ class Document(db.Document, gj.Document):
     """Document."""
     meta = {
         'abstract': True,
-        'queryset_class': QuerySet
+        'queryset_class': QuerySet,
+        'ordering': ['word']
     }
 
 

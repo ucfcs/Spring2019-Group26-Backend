@@ -44,7 +44,8 @@ def add_word():
         file.filename = secure_filename(file.filename)
         try:
             output = s3_helper.upload_file_to_s3(file)
-            Dictionary(word=r['word'], url=output, in_dictionary=True).save()
+            word = ''.join(filter(str.isalpha, r['word'])).lower()
+            Dictionary(word=word, url=output, in_dictionary=True).save()
         except Exception as e:
             print(e)
             return Response('Failed: error', 500)
@@ -64,9 +65,11 @@ def delete_word():
 
     :rtype: None
     """
-    input_ = request.args.get('input')
+    input_ = request.args.get('input', None)
+    if not input_:
+        return Response('Word not found', 204)
+
     imput_ = ''.join(filter(str.isalpha, input_)).lower()
-    print(input_)
     if Dictionary.objects(word=input_):
         try:
             url = Dictionary.objects.get(word=input_).url
@@ -92,10 +95,9 @@ def get_word(word):
     :rtype: JSON
     """
     word = ''.join(filter(str.isalpha, word)).lower()
-    print(word)
     if not Dictionary.objects(word=word):
         Dictionary(word=word, times_requested=1).save()
-        return Response('Word not found', 204)
+        return Response('Word not found', 404)
 
     o = Dictionary.objects.get(word=word)
     if o.in_dictionary == False:
@@ -108,13 +110,50 @@ def get_word(word):
 
 @dictionary.route('/dictionary', methods=['GET'])
 def get_words():
-    return Response(Dictionary.objects(in_dictionary=True).only('word').to_json(), 200, mimetype='application/json')
+    """Get all words in the dictionary
+
+    Returns a JSON response contianing the word and id of all words in the db
+
+    path parameter: /dictionary
+    no request body
+
+    :rtype: JSON
+    """
+    start = request.args.get('start', None)
+    if start:
+        start = int(start)
+        if start >= Dictionary.objects(in_dictionary=True).count():
+            start = 0
+    else:
+        start = 0
+
+    limit = request.args.get('limit', None)
+    if limit:
+        limit = int(limit)
+        if limit < 5 or limit > 100:
+            limit = 20
+    else:
+        limit = 20
+
+    return Response(Dictionary.objects(in_dictionary=True)[start:limit].only('word').to_json(), 200, mimetype='application/json')
 
 
 @dictionary.route('/dictionary/search', methods=['GET'])
 def search_word():
-    input_ = request.args.get('input')
-    input_ = input_.lower()
+    """Get search for a word in our database
+
+    Returns a word object in a JSON response
+
+    path parameter: /dictionary/search
+    no request body
+
+    :rtype: JSON
+    """
+    input_ = request.args.get('input', None)
+    if not input_:
+        return Response('Word not found', 204)
+
+    input_ = ''.join(filter(str.isalpha, input_)).lower()
     o = Dictionary.objects(word__contains=input_)
     if o:
         return Response(o.to_json(), 200, mimetype='application/json')
