@@ -217,6 +217,29 @@ paths:
         - dictionary
       summary: Get a list of all words that we have animations for
       description: Returns a list objects containing word and ObjectId where in_dictionary is true
+      parameters:
+      - name: limit
+        in: query
+        description: 'The number of words a user want to receive'
+        required: false
+        style: form
+        explode: false
+        schema:
+          maximum: 100
+          minimum: 5
+          type: integer
+          format: int32
+          default: 20
+      - name: start
+        in: query
+        description: 'The starting point of the word list'
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
       responses:
         '200':
           description: 'Success: word object list returned'
@@ -673,9 +696,6 @@ components:
         DOB:
           type: string
           format: date
-        email:
-          type: string
-          format: email
         completed_modules:
           type: array
           items:
@@ -686,9 +706,6 @@ components:
                 format: ObjectId
               module_name:
                 type: string
-            example:
-              module_name: module_name
-              module_id: module_id
     CreateUser:
       description: User object class.
       type: object
@@ -708,19 +725,6 @@ components:
         password:
           type: string
           format: password
-        completed_modules:
-          type: array
-          items:
-            type: object
-            properties:
-              module_id:
-                type: string
-                format: ObjectId
-              module_name:
-                type: string
-            example:
-              module_name: module_name
-              module_id: module_id
       required:
         - dob
         - email
@@ -731,13 +735,8 @@ components:
         lastname: Wick
         password: willkillugood
         DOB: '1964-09-02'
-        email: babayaga64@gmail.com
         username: baba_yaga
-        completed_modules:
-          - module_name: module_name
-            module_id: module_id
-          - module_name: module_name
-            module_id: module_id
+        email: 'jwick64@gmail.com'
     PostDictionary:
       description: Word object
       type: object
@@ -769,12 +768,6 @@ components:
         times_requested:
           type: integer
           format: int32
-      example:
-        id: someId
-        word: test
-        in_dictionary: true
-        url: https://asl.bucket.com/test
-        times_requested: 5
     GetDictionary:
       description: Word object containing word and Id
       type: object
@@ -810,18 +803,6 @@ components:
         grade:
           type: integer
           format: int32
-      example:
-        quiz_id: quizId
-        user_answers:
-          - question_id: questionId
-            user_answer: foo
-          - question_id: questionId
-            user_answer: bar
-        date_completed: '2019-09-13 15:47:18.171396'
-        grade: 6
-        module_id: moduleId
-        user_id: userId
-        id: someId
     PostSubmission:
       description: Content received when a user gets a submission
       type: object
@@ -899,25 +880,14 @@ components:
           format: ObjectId
         module_name:
           type: string
-          example: 'Module One: Greetings'
         details:
           type: string
-          example: >-
-            In this module you will learn basic the basics of ASL and how to
-            greet someone
         parent:
           type: string
           description: >-
             The module Id of the module that you must complete before accessing
             this module
           format: ObjectId
-      example:
-        id: id
-        parent: parent
-        moduleName: 'Module One: Greetings'
-        details: >-
-          In this module you will learn basic the basics of ASL and how to greet
-          someone
     PostModule:
       description: Module object.
       type: object
@@ -978,15 +948,6 @@ components:
           description: An array of all the quiz objects included in the module
           items:
             $ref: '#/components/schemas/GetQuiz'
-      example:
-        id: someId
-        module_name: Test module
-        details: This is a test module
-        parent: someId
-        words:
-          - $ref: '#/components/schemas/GetWord'
-        quiz:
-          - $ref: '#/components/schemas/GetQuiz'
     PostQuestion:
       description: Question object
       type: object
@@ -994,23 +955,23 @@ components:
         question_text:
           type: string
         word:
-          type: string
-          format: ObjectId
+          $ref: '#/components/schemas/GetWord'
       example:
         question_text: Hi this is a test
         word: someId
     GetQuestion:
-      allOf:
-        - $ref: '#/components/schemas/PostQuestion'
+      description: Question object
       type: object
       properties:
         id:
           type: string
           format: ObjectId
-      example:
-        id: 'someId'
+        question_text:
+          type: string
+        word:
+          $ref: '#/components/schemas/GetWord'
     PostQuiz:
-      description: Content received when a user gets a submission
+      description: Quiz object
       type: object
       properties:
         quiz_name:
@@ -1021,12 +982,17 @@ components:
         quiz_name: Test quiz
         details: This is a test quiz
     GetQuiz:
-      allOf:
-        - $ref: '#/components/schemas/PostQuiz'
+      description: Quiz object
       type: object
       properties:
         id:
           type: string
           format: ObjectId
-      example:
-        id: 'someId'
+        quiz_name:
+          type: string
+        details:
+          type: string
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/GetQuestion'
