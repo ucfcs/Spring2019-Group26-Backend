@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+from flask import Response
 from flask import Flask
 from asltutor import settings, database, login_manager
 import jwt
@@ -21,7 +21,7 @@ login_manager.lm.init_app(app)
 
 @app.route('/')
 def hello():
-    return 'hello world'
+    return Response('Success: hello world', 200)
 
 # Dictionary
 # Module
