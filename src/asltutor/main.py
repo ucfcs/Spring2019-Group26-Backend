@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+from flask import Response
 from flask import Flask
 from asltutor import settings, database
 import jwt
@@ -18,6 +18,14 @@ else:
 
 # MongoDB
 database.db.init_app(app)
+
+# Flask Security
+# not sure when this will actually end up used, for now using JWT
+login_manager.lm.init_app(app)
+
+@app.route('/')
+def hello():
+    return Response('Success: hello world', 200)
 
 # Dictionary
 # Module
