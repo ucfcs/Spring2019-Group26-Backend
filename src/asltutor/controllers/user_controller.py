@@ -26,7 +26,7 @@ def create_user():
     :rtype: None
     """
     if request.is_json is None:
-        return Response('Failed: Content-type must be application/json', 401)
+        return Response('Failed: Content-type must be application/json', 415)
 
     r = request.get_json()
     newUser = User(**r)
@@ -81,45 +81,9 @@ def get_user_info(username):
 
     :rtype: json
     """
-    print(username)
-
     if User.objects(username=username):
-        return Response(User.objects(username=username).exclude('password', 'last_login', 'is_active').to_json())
+        return Response(User.objects(username=username).exclude('last_login').to_json())
     return Response('Failed: User not found', 404)
-
-
-@user.route('/user/login', methods=['POST'])
-def login():
-    """Logs user into the system
-
-    :param body:
-    :type body: dict | bytes
-
-    :rtype: str
-    """
-    if request.is_json is None:
-        return Response('Failed: Content-type must be application/json', 401)
-    content = request.get_json()
-    username = content['username']
-    password = content['password']
-    isUser = User.objects.get(username=username)
-    # validation, is this a valid user and is this their password
-    if not isUser and not pbkdf2_sha256.verify(password, isUser.password):
-        return Response('Failed: Credentials are wrong', 400)
-    # return a JWT token if they are validated
-    token = jwt.encode({'public_id': isUser.get_id(), 'exp': datetime.datetime.utcnow(
-    ) + datetime.timedelta(days=7)}, app.config['SECRET_KEY'])
-    isUser.last_login = datetime.datetime.now()
-    isUser.save()
-    return jsonify({'token': token.decode('UTF-8')})
-
-
-def logout_user():
-    """Logs out current logged in user session
-
-    :rtype: None
-    """
-    pass
 
 
 @user.route('/user/<string:username>/submissions', methods=['GET'])

@@ -149,7 +149,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GetDictionary'
+                  $ref: '#/components/schemas/GetWord'
   /admin/submissions:
     get:
       tags:
@@ -215,14 +215,115 @@ paths:
     get:
       tags:
         - dictionary
+      summary: Get a list of all words that we have animations for
+      description: Returns a list objects containing word and ObjectId where in_dictionary is true
+      parameters:
+      - name: limit
+        in: query
+        description: 'The number of words a user want to receive'
+        required: false
+        style: form
+        explode: false
+        schema:
+          maximum: 100
+          minimum: 5
+          type: integer
+          format: int32
+          default: 20
+      - name: start
+        in: query
+        description: 'The starting point of the word list'
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      responses:
+        '200':
+          description: 'Success: word object list returned'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetDictionary'
+  /dictionary/{word}:
+    get:
+      tags:
+        - dictionary
       summary: Get an ASL definition from the dictionary
       description: >-
         Returns a URL location of the ASL animation corresponding to the input
         given
       parameters:
+      - name: word
+        in: path
+        description: 'The word a user wants to get'
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: 'Success: word object returned'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetWord'
+        '204':
+          description: 'No content'
+  /dictionary/create:
+    post:
+      tags:
+        - dictionary
+      summary: Add a word to the dictionary
+      description: Admins are able to add an ASL animation to our dictionary
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PostDictionary'
+        required: true
+      responses:
+        '200':
+          description: 'Success: word added to dictionary'
+        '415':
+          description: 'Failed: Content-type must be application/json'
+  /dictionary/delete:
+    post:
+      tags:
+        - dictionary
+      summary: Delete a word from the dictionary
+      description: Admins are able to delete a word from the dictionary
+      parameters:
         - name: input
           in: query
-          description: Input the user wants a translation for
+          description: Word the admin wants to delete
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+            example: test
+      responses:
+        '200':
+          description: 'Success: word deleted from the dictionary'
+        '204':
+          description: 'No content'
+  /dictionary/search:
+    get:
+      tags:
+        - dictionary
+      summary: Search for a word in the dictionary
+      description: >-
+        Returns all words that contain the substring of the provided input
+      parameters:
+        - name: input
+          in: query
+          description: Input the user wants to search for
           required: true
           style: form
           explode: true
@@ -235,26 +336,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetDictionary'
-        '404':
-          description: 'Failed: Word not found'
-  /dictionary/create:
-    post:
-      tags:
-        - dictionary
-      summary: Add a word to the dictionary
-      description: Admins are able to add an ASL animation to our dictionary
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PostDictionary'
-        required: true
-      responses:
-        '200':
-          description: 'Success: word added to dictionary'
-        '401':
-          description: 'Failed: Content-type must be application/json'
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetWord'
+        '204':
+          description: 'No content'
   /module:
     get:
       tags:
@@ -268,11 +354,13 @@ paths:
         '200':
           description: >-
             Sucess: returning an array of objects containing module names, Ids,
-            details and child and parent objectIds
+            details and parent objectIds
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetInfoModule'
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetInfoModule'
   /module/create:
     post:
       tags:
@@ -289,8 +377,14 @@ paths:
       responses:
         '200':
           description: 'Success: module created'
-        '401':
+        '204':
+          description: 'No content'
+        '400':
+          description: 'Failed: invalid Id'
+        '415':
           description: 'Failed: Content-type must be application/json'
+
+
   /module/addword:
     post:
       tags:
@@ -316,7 +410,7 @@ paths:
           description: 'Success: word added to module'
         '400':
           description: 'Failed: invalid Id'
-        '401':
+        '415':
           description: 'Failed: Content-type must be application/json'
         '404':
           description: 'Failed: word or module not found'
@@ -327,7 +421,7 @@ paths:
       summary: Deletes the module and all of it quizzes from the database.
       description: >-
         Deletes the module and all of it's quizzes from the database. Also
-        adjusts the it's parents and/or children
+        adjusts it's parent and/or child nodes
       parameters:
         - name: moduleId
           in: path
@@ -401,7 +495,7 @@ paths:
                 $ref: '#/components/schemas/BulkCreateQuiz'
         '400':
           description: 'Failed: invalid entries'
-        '401':
+        '415':
           description: 'Failed: Content-type must be application/json'
   '/module/quiz/id/{id}':
     post:
@@ -431,7 +525,7 @@ paths:
           description: 'Success: Quiz has been created for a module'
         '400':
           description: 'Failed: invalid Id'
-        '401':
+        '415':
           description: 'Failed: Content-type must be application/json'
         '500':
           description: 'Failed: server error'
@@ -452,7 +546,7 @@ paths:
             format: ObjectId
       responses:
         '200':
-          description: 'Success: all quiz object has been returned'
+          description: 'Success: quiz object returned'
           content:
             application/json:
               schema:
@@ -490,7 +584,7 @@ paths:
           description: 'Success: all question objects have been returned'
         '400':
           description: 'Failed: invalid entries'
-        '401':
+        '415':
           description: 'Failed: Content-type must be application/json'
         '500':
           description: 'Failed: server error'
@@ -586,7 +680,7 @@ paths:
           description: 'Success: Submission has been posted'
         '400':
           description: 'Failed: invalid Id(s)'
-        '401':
+        '415':
           description: 'Failed: Content-type must be application/json'
 components:
   schemas:
@@ -602,9 +696,6 @@ components:
         DOB:
           type: string
           format: date
-        email:
-          type: string
-          format: email
         completed_modules:
           type: array
           items:
@@ -615,9 +706,6 @@ components:
                 format: ObjectId
               module_name:
                 type: string
-            example:
-              module_name: module_name
-              module_id: module_id
     CreateUser:
       description: User object class.
       type: object
@@ -637,19 +725,6 @@ components:
         password:
           type: string
           format: password
-        completed_modules:
-          type: array
-          items:
-            type: object
-            properties:
-              module_id:
-                type: string
-                format: ObjectId
-              module_name:
-                type: string
-            example:
-              module_name: module_name
-              module_id: module_id
       required:
         - dob
         - email
@@ -660,14 +735,23 @@ components:
         lastname: Wick
         password: willkillugood
         DOB: '1964-09-02'
-        email: babayaga64@gmail.com
         username: baba_yaga
-        completed_modules:
-          - module_name: module_name
-            module_id: module_id
-          - module_name: module_name
-            module_id: module_id
+        email: 'jwick64@gmail.com'
     PostDictionary:
+      description: Word object
+      type: object
+      properties:
+        word:
+          type: string
+        file:
+          type: string
+          format: binary
+      example:
+        word: test
+      required:
+        - word
+        - file
+    GetWord:
       description: Word object
       type: object
       properties:
@@ -676,28 +760,23 @@ components:
           format: ObjectId
         word:
           type: string
+        in_dictionary:
+          type: boolean
         url:
           type: string
           format: uri
-        in_dictionary:
-          type: boolean
-      example:
-        in_dictionary: false
-        word: test
-        url: http://test.com
-      required:
-        - in_dictionary
-        - word
+        times_requested:
+          type: integer
+          format: int32
     GetDictionary:
-      allOf:
-        - $ref: '#/components/schemas/PostDictionary'
+      description: Word object containing word and Id
       type: object
       properties:
         id:
           type: string
           format: ObjectId
-      example:
-        id: 5d8d6c0955c9083ebfeae8c7
+        word:
+          type: string
     GetSubmission:
       description: Content received when a user gets a submission
       type: object
@@ -724,18 +803,6 @@ components:
         grade:
           type: integer
           format: int32
-      example:
-        quiz_id: quizId
-        user_answers:
-          - question_id: questionId
-            user_answer: foo
-          - question_id: questionId
-            user_answer: bar
-        date_completed: '2019-09-13 15:47:18.171396'
-        grade: 6
-        module_id: moduleId
-        user_id: userId
-        id: someId
     PostSubmission:
       description: Content received when a user gets a submission
       type: object
@@ -813,32 +880,14 @@ components:
           format: ObjectId
         module_name:
           type: string
-          example: 'Module One: Greetings'
         details:
           type: string
-          example: >-
-            In this module you will learn basic the basics of ASL and how to
-            greet someone
         parent:
           type: string
           description: >-
             The module Id of the module that you must complete before accessing
             this module
           format: ObjectId
-        child:
-          type: string
-          description: >-
-            The module Id of the module that you must complete before accessing
-            this module
-          format: ObjectId
-      example:
-        id: id
-        parent: parent
-        child: child
-        moduleName: 'Module One: Greetings'
-        details: >-
-          In this module you will learn basic the basics of ASL and how to greet
-          someone
     PostModule:
       description: Module object.
       type: object
@@ -848,9 +897,6 @@ components:
         details:
           type: string
         parent:
-          type: string
-          format: ObjectId
-        child:
           type: string
           format: ObjectId
         words:
@@ -865,11 +911,13 @@ components:
           items:
             type: string
             format: ObjectId
+      required:
+        - module_name
+        - details
       example:
         module_name: Test module
         details: This is a test module
         parent: someId
-        child: someId
         words:
           - someId
           - someId
@@ -890,29 +938,16 @@ components:
         parent:
           type: string
           format: ObjectId
-        child:
-          type: string
-          format: ObjectId
         words:
           type: array
           description: An array of all the word objects included in the module
           items:
-            $ref: '#/components/schemas/GetDictionary'
+            $ref: '#/components/schemas/GetWord'
         quiz:
           type: array
           description: An array of all the quiz objects included in the module
           items:
             $ref: '#/components/schemas/GetQuiz'
-      example:
-        id: 5d8d3dc02e1032bc82d7aa4d
-        module_name: Test module
-        details: This is a test module
-        parent: 5d8d3dc02e1032bc82d7aa4c
-        child: 5d8d3dc02e1032bc82d7aa4e
-        words:
-          - $ref: '#/components/schemas/GetDictionary'
-        quiz:
-          - $ref: '#/components/schemas/GetQuiz'
     PostQuestion:
       description: Question object
       type: object
@@ -920,23 +955,23 @@ components:
         question_text:
           type: string
         word:
-          type: string
-          format: ObjectId
+          $ref: '#/components/schemas/GetWord'
       example:
         question_text: Hi this is a test
-        word: 5d8d3dc02e1032bc82d7aa3a
+        word: someId
     GetQuestion:
-      allOf:
-        - $ref: '#/components/schemas/PostQuestion'
+      description: Question object
       type: object
       properties:
         id:
           type: string
           format: ObjectId
-      example:
-        id: '5d8d6c0955c9083ebfeae8c7'
+        question_text:
+          type: string
+        word:
+          $ref: '#/components/schemas/GetWord'
     PostQuiz:
-      description: Content received when a user gets a submission
+      description: Quiz object
       type: object
       properties:
         quiz_name:
@@ -947,12 +982,17 @@ components:
         quiz_name: Test quiz
         details: This is a test quiz
     GetQuiz:
-      allOf:
-        - $ref: '#/components/schemas/PostQuiz'
+      description: Quiz object
       type: object
       properties:
         id:
           type: string
           format: ObjectId
-      example:
-        id: '5d8d6c0955c9083ebfeae8c7'
+        quiz_name:
+          type: string
+        details:
+          type: string
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/GetQuestion'
