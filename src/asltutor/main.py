@@ -19,6 +19,7 @@ else:
 # MongoDB
 database.db.init_app(app)
 
+
 @app.route('/')
 def hello():
     return Response('Success: hello world', 200)
