@@ -7,7 +7,7 @@ from mongoengine import *
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask import request, Response
 
-DEV = False
+DEV = True
 
 app = Flask(__name__)
 
@@ -19,9 +19,6 @@ else:
 # MongoDB
 database.db.init_app(app)
 
-# Flask Security
-# not sure when this will actually end up used, for now using JWT
-login_manager.lm.init_app(app)
 
 @app.route('/')
 def hello():

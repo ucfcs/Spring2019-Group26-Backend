@@ -33,8 +33,6 @@ class User(Document, UserMixin):
     lastname = db.StringField(max_length=20)
     dob = db.DateTimeField(required=True)
     creation_date = db.DateTimeField()
-    last_login = db.DateTimeField()
-    is_active = db.BooleanField(default=False)
     completed_modules = db.ListField(
         db.EmbeddedDocumentField(Completed_Modules))
 
