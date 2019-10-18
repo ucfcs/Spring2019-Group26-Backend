@@ -82,7 +82,7 @@ def get_user_info(username):
     :rtype: json
     """
     if User.objects(username=username):
-        return Response(User.objects(username=username).exclude('last_login').to_json())
+        return Response(User.objects(username=username).to_json())
     return Response('Failed: User not found', 404)
 
 

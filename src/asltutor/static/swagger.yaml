@@ -716,27 +716,17 @@ components:
           type: string
         lastname:
           type: string
-        DOB:
+        dob:
           type: string
           format: date
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          format: password
       required:
         - dob
-        - email
-        - password
         - username
       example:
         firstname: Jon
         lastname: Wick
-        password: willkillugood
-        DOB: '1964-09-02'
+        dob: '1964-09-02'
         username: baba_yaga
-        email: 'jwick64@gmail.com'
     PostDictionary:
       description: Word object
       type: object

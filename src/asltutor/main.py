@@ -7,7 +7,7 @@ from mongoengine import *
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask import request, Response
 
-DEV = False
+DEV = True
 
 app = Flask(__name__)
 
