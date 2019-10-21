@@ -171,26 +171,37 @@ def add_all():
         user_1.completed_modules = [comp1]
         user_1.save()
 
-        ans0 = UserAnswers(question_id=q0.id, user_answer=q0.word.word)
-        ans1 = UserAnswers(question_id=q1.id, user_answer=q1.word.word)
-        ans2 = UserAnswers(question_id=q2.id, user_answer=word_bar.word)
-        ans3 = UserAnswers(question_id=q3.id, user_answer=q3.word.word)
-        ans4 = UserAnswers(question_id=q4.id, user_answer=q4.word.word)
+        ans0 = UserAnswers(
+            question_id=q0.id, user_answer=q0.word.word, correct_answer=q0.word.word)
+        ans1 = UserAnswers(
+            question_id=q1.id, user_answer=q1.word.word, correct_answer=q1.word.word)
+        ans2 = UserAnswers(
+            question_id=q2.id, user_answer=word_bar.word, correct_answer=q2.word.word)
+        ans3 = UserAnswers(
+            question_id=q3.id, user_answer=q3.word.word, correct_answer=q3.word.word)
+        ans4 = UserAnswers(
+            question_id=q4.id, user_answer=q4.word.word, correct_answer=q4.word.word)
         sub_1 = Submission(user_id=user_1, quiz_id=quiz_1, module_id=mod_1, user_answers=[
             ans0, ans1, ans2, ans3, ans4], grade=4)
         sub_1.save()
 
-        ans5 = UserAnswers(question_id=q3.id, user_answer=q3.word.word)
-        ans6 = UserAnswers(question_id=q5.id, user_answer=q5.word.word)
-        ans7 = UserAnswers(question_id=q6.id, user_answer=q6.word.word)
-        ans8 = UserAnswers(question_id=q7.id, user_answer=q7.word.word)
+        ans5 = UserAnswers(
+            question_id=q3.id, user_answer=q3.word.word, correct_answer=q3.word.word)
+        ans6 = UserAnswers(
+            question_id=q5.id, user_answer=q5.word.word, correct_answer=q5.word.word)
+        ans7 = UserAnswers(
+            question_id=q6.id, user_answer=q6.word.word, correct_answer=q6.word.word)
+        ans8 = UserAnswers(
+            question_id=q7.id, user_answer=q7.word.word, correct_answer=q7.word.word)
 
         sub_2 = Submission(user_id=user_1, quiz_id=quiz_3, module_id=mod_2, user_answers=[
             ans5, ans6, ans7, ans8], grade=4)
         sub_2.save()
 
-        ans9 = UserAnswers(question_id=q6.id, user_answer=word_foo.word)
-        ans10 = UserAnswers(question_id=q8.id, user_answer=word_bar.word)
+        ans9 = UserAnswers(
+            question_id=q6.id, user_answer=word_foo.word, correct_answer=q6.word.word)
+        ans10 = UserAnswers(
+            question_id=q8.id, user_answer=word_bar.word, correct_answer=q8.word.word)
 
         sub_3 = Submission(user_id=user_1, quiz_id=quiz_4, module_id=mod_2, user_answers=[
             ans9, ans10], grade=0)

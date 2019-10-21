@@ -25,8 +25,9 @@ class Document(db.Document, gj.Document):
 
 
 class UserAnswers(db.EmbeddedDocument):
-    question_id = db.ReferenceField(Question, required=True)
+    question_id = db.LazyReferenceField(Question, required=True)
     user_answer = db.StringField(required=True)
+    correct_answer = db.StringField(required=True)
 
 
 class Submission(Document):
