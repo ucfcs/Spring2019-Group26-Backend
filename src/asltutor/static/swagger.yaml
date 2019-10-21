@@ -217,29 +217,6 @@ paths:
         - dictionary
       summary: Get a list of all words that we have animations for
       description: Returns a list objects containing word and ObjectId where in_dictionary is true
-      parameters:
-      - name: limit
-        in: query
-        description: 'The number of words a user want to receive'
-        required: false
-        style: form
-        explode: false
-        schema:
-          maximum: 100
-          minimum: 5
-          type: integer
-          format: int32
-          default: 20
-      - name: start
-        in: query
-        description: 'The starting point of the word list'
-        required: false
-        style: form
-        explode: false
-        schema:
-          type: integer
-          format: int32
-          default: 0
       responses:
         '200':
           description: 'Success: word object list returned'
@@ -311,34 +288,6 @@ paths:
       responses:
         '200':
           description: 'Success: word deleted from the dictionary'
-        '204':
-          description: 'No content'
-  /dictionary/search:
-    get:
-      tags:
-        - dictionary
-      summary: Search for a word in the dictionary
-      description: >-
-        Returns all words that contain the substring of the provided input
-      parameters:
-        - name: input
-          in: query
-          description: Input the user wants to search for
-          required: true
-          style: form
-          explode: true
-          schema:
-            type: string
-            example: test
-      responses:
-        '200':
-          description: 'Success: word object returned'
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/GetWord'
         '204':
           description: 'No content'
   /module:
@@ -678,6 +627,10 @@ paths:
       responses:
         '200':
           description: 'Success: Submission has been posted'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSubmission'
         '400':
           description: 'Failed: invalid Id(s)'
         '415':
@@ -789,7 +742,16 @@ components:
         user_answers:
           type: array
           items:
-            $ref: '#/components/schemas/SubmissionUserAnswers'
+            description: Object containing user answer to a question with the question id and correct answer
+            type: object
+            properties:
+              question_id:
+                type: string
+                format: ObjectId
+              user_answer:
+                type: string
+              correct_answer:
+                type: string
         grade:
           type: integer
           format: int32
@@ -809,12 +771,21 @@ components:
         user_answers:
           type: array
           items:
-            $ref: '#/components/schemas/SubmissionUserAnswers'
+            description: Object containing user answer to a question with the question Id
+            type: object
+            properties:
+              question_id:
+                type: string
+                format: ObjectId
+              user_answer:
+                type: string
       required:
         - user_id
         - quiz_id
         - module_id
         - user_answers
+        - questionId
+        - user_answer
       example:
         module_id: moduleId
         user_id: userId
@@ -824,18 +795,6 @@ components:
             user_answer: foo
           - question_id: questionId
             user_answer: bar
-    SubmissionUserAnswers:
-      description: Object containing user answer to a question with the questions answer Id
-      type: object
-      properties:
-        question_id:
-          type: string
-          format: ObjectId
-        user_answer:
-          type: string
-      required:
-        - questionId
-        - user_answer
     BulkCreateQuiz:
       description: Quiz object
       type: object
