@@ -202,16 +202,21 @@ def delete_question(questionId):
     return Response('Success', 200)
 
 
-def grade_and_verify(list):
+def grade_and_verify(list, sub):
     count = 0
+    answers = []
     for i in list:
         if ObjectId.is_valid(i['question_id']):
             q = Question.objects.get(id=i['question_id'])
+            answers.append(UserAnswers(
+                question_id=i['question_id'], user_answer=i['user_answer'], correct_answer=q.word['word']))
             if i['user_answer'] == q.word['word']:
                 count += 1
         else:
             return Response('Failed: invalid question Id', 400)
-    return (count / len(list)) * 100
+    sub.grade = (count / len(list)) * 100
+    sub.user_answers = answers
+    return sub
 
 
 @quiz.route('/module/quiz', methods=['POST'])
@@ -238,16 +243,12 @@ def submit_quiz():
         return err
 
     # check if the quiz is part of the module
-    if not Module.objects(id=module.id, quiz=quiz):
+    if not Module.objects(id=r['module_id'], quiz=r['quiz_id']):
         return Response('Failed: quiz is not a member of module', 400)
 
     # this is all kinda nightmare fuel but it works
-    sub = Submission(user_id=user.id, quiz_id=quiz.id, module_id=module.id)
-    sub.grade = grade_and_verify(r['user_answers'])
-    answers = []
-    for i in r['user_answers']:
-        answers.append(UserAnswers(
-            question_id=i['question_id'], user_answer=i['user_answer']))
-    sub.user_answers = answers
+    sub = Submission(user_id=r['user_id'],
+                     quiz_id=r['quiz_id'], module_id=r['module_id'])
+    sub = grade_and_verify(r['user_answers'], sub)
     sub.save()
-    return Response('Success', 200)
+    return Response(sub.to_json(), 200, mimetype='application/json')
