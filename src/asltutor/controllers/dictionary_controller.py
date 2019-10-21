@@ -89,7 +89,7 @@ def get_word(word):
 
     Returns a JSON response contianing the word document of the word requested
 
-    path parameter: /dictionary/word
+    path parameter: /dictionary/{word}
     no request body
 
     :rtype: JSON
@@ -119,42 +119,4 @@ def get_words():
 
     :rtype: JSON
     """
-    start = request.args.get('start', None)
-    if start:
-        start = int(start)
-        if start >= Dictionary.objects(in_dictionary=True).count():
-            start = 0
-    else:
-        start = 0
-
-    limit = request.args.get('limit', None)
-    if limit:
-        limit = int(limit)
-        if limit < 5 or limit > 100:
-            limit = 20
-    else:
-        limit = 20
-
-    return Response(Dictionary.objects(in_dictionary=True)[start:limit].only('word').to_json(), 200, mimetype='application/json')
-
-
-@dictionary.route('/dictionary/search', methods=['GET'])
-def search_word():
-    """Get search for a word in our database
-
-    Returns a word object in a JSON response
-
-    path parameter: /dictionary/search
-    no request body
-
-    :rtype: JSON
-    """
-    input_ = request.args.get('input', None)
-    if not input_:
-        return Response('Word not found', 204)
-
-    input_ = ''.join(filter(str.isalpha, input_)).lower()
-    o = Dictionary.objects(word__contains=input_)
-    if o:
-        return Response(o.to_json(), 200, mimetype='application/json')
-    return Response('Word not found', 204)
+    return Response(Dictionary.objects(in_dictionary=True).only('word').to_json(), 200, mimetype='application/json')
