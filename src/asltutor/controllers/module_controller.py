@@ -124,8 +124,7 @@ def delete_module(moduleId):
     """Delete a module from the database
 
     Deletes the module and all of it quizzes from the database.
-    Must also adjust the it's parents and/or children. Can use
-    either objectId or the module name
+    Must also adjust the it's parents and/or children.
 
     :param moduleId: The Id of the module that an admin is deleting.
     :type submissionId: str
@@ -138,22 +137,22 @@ def delete_module(moduleId):
     o = Module.objects.get_or_404(id=moduleId)
 
     # link up the parents to the new children and vice versa.
-    # Unlink if no parents or children exist.
+    # if it has a parent
     if o.parent != None:
-        if o.child != None:
-            # parent exists, child exists
-            Module.objects(id=o.parent).update_one(child=o.child)
-            Module.objects(id=o.child).update_one(parent=o.parent)
-        else:
-            # parent exists, child does not exist
-            Module.objects(id=o.parent).update_one(child=None)
+        # if it has a child
+        if Module.objects(parent=o.id):
+            # link parent to child
+            Module.objects(parent=o.id).update(parent=o.parent)
     else:
-        # parent does not exist, child exists
-        Module.objects(id=o.child).update_one(parent=None)
+        # if it does have a parent meaning it's the first module
+        Module.objects(parent=o.id).update(parent=None)
 
+    # remove all quizzes for the module
     for e in o.quiz:
         e.delete()
+    # delete the module
     o.delete()
+
     return Response('Success', 200)
 
 
