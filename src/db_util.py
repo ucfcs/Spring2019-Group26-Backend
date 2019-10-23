@@ -145,7 +145,7 @@ def add_all():
                        word_computer, word_test, word_hello, word_sick, word_foo, word_bar, word_hack, word_food], quiz=[quiz_1, quiz_2])
 
         mod_2 = Module(module_name='Test module 2', details='This is the two module', words=[
-                       word_foo, word_food, word_goodbye, word_pizza, word_hack], quiz=[quiz_3, quiz_4])
+                       word_foo, word_food, word_goodbye, word_pizza, word_hack], quiz=[quiz_3])
 
         mod_3 = Module(module_name='Test module 3', details='This is the three module', words=[
                        word_goodbye, word_hack], quiz=[quiz_4])
