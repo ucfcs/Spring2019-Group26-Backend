@@ -232,8 +232,7 @@ paths:
         - dictionary
       summary: Get an ASL definition from the dictionary
       description: >-
-        Returns a URL location of the ASL animation corresponding to the input
-        given
+        Returns a word object of the requested word
       parameters:
       - name: word
         in: path
@@ -250,8 +249,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetWord'
-        '204':
-          description: 'No content'
+        '404':
+          description: 'Failed: word not in dictionary'
+    post:
+      tags:
+        - dictionary
+      summary: Request we add a word to our dictionary
+      description: >-
+        Increments the times requested counter for the word so we can track the stats of the word
+      parameters:
+      - name: word
+        in: path
+        description: 'The word a user wants us to add'
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: 'Success: request received'
+        '400':
+          description: 'Failed: word provided is not a vaild english word'
+        '409':
+          description: 'Failed: word already exists'
   /dictionary/create:
     post:
       tags:
@@ -267,8 +288,11 @@ paths:
       responses:
         '200':
           description: 'Success: word added to dictionary'
-        '415':
-          description: 'Failed: Content-type must be application/json'
+        '501':
+          description: 'Failed: error uploading word'
+        '400':
+          description: 'Failed: word provided is not a vaild english word/Missing file'
+
   /dictionary/delete:
     post:
       tags:
@@ -290,6 +314,8 @@ paths:
           description: 'Success: word deleted from the dictionary'
         '204':
           description: 'No content'
+        '501':
+          description: 'Failed: error uploading word'
   /module:
     get:
       tags:
@@ -476,8 +502,8 @@ paths:
           description: 'Failed: invalid Id'
         '415':
           description: 'Failed: Content-type must be application/json'
-        '500':
-          description: 'Failed: server error'
+        '501':
+          description: 'Failed: message me'
     get:
       tags:
         - quiz
@@ -504,8 +530,8 @@ paths:
           description: 'Failed: invalid Id'
         '404':
           description: 'Failed: quiz not found'
-        '500':
-          description: 'Failed: server error'
+        '501':
+          description: 'Failed: message me'
   '/module/quiz/question/id/{id}':
     post:
       tags:
@@ -535,8 +561,8 @@ paths:
           description: 'Failed: invalid entries'
         '415':
           description: 'Failed: Content-type must be application/json'
-        '500':
-          description: 'Failed: server error'
+        '501':
+          description: 'Failed: message me'
     get:
       tags:
         - quiz
@@ -563,8 +589,8 @@ paths:
           description: 'Failed: invalid Id'
         '404':
           description: 'Failed: question not found'
-        '500':
-          description: 'Failed: server error'
+        '501':
+          description: 'Failed: message me'
   '/module/quiz/delete/id/{quizId}':
     post:
       tags:
