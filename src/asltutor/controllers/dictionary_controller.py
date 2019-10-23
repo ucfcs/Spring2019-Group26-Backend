@@ -84,7 +84,7 @@ def delete_word():
             Dictionary.objects(word=input_).delete()
         except Exception as e:
             print(e)
-            return Response('Failed', 501)
+            return Response('Failed: error uploading word', 501)
         return Response('Success: word deleted from the dictionary', 200)
     return Response('Word not found', 204)
 
