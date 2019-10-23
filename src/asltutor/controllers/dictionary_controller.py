@@ -43,13 +43,18 @@ def add_word():
     # TODO need to have admin validate the words
     if file:
         file.filename = secure_filename(file.filename)
-        try:
-            output = s3_helper.upload_file_to_s3(file)
-            word = ''.join(filter(str.isalpha, r['word'])).lower()
-            Dictionary(word=word, url=output, in_dictionary=True).save()
-        except Exception as e:
-            print(e)
-            return Response('Failed: error', 500)
+        w = enchant.Dict("en_US")
+        word = ''.join(filter(str.isalpha, r['word'])).lower()
+        # if it's an actual word try to upload the word
+        if w.check(word):
+            try:
+                output = s3_helper.upload_file_to_s3(file)
+                Dictionary(word=word, url=output, in_dictionary=True).save()
+            except Exception as e:
+                print(e)
+                return Response('Failed: error uploading word', 501)
+        else:
+            return Response('Failed: word provided is not a vaild english word', 400)
     else:
         return redirect('/dictionary/create')
     return Response('Success', 200)
