@@ -5,6 +5,7 @@ from flask import Blueprint
 from asltutor import s3_helper
 from werkzeug import secure_filename
 from flask import render_template
+import enchant
 
 dictionary = Blueprint('dictionary', __name__)
 
@@ -42,13 +43,18 @@ def add_word():
     # TODO need to have admin validate the words
     if file:
         file.filename = secure_filename(file.filename)
-        try:
-            output = s3_helper.upload_file_to_s3(file)
-            word = ''.join(filter(str.isalpha, r['word'])).lower()
-            Dictionary(word=word, url=output, in_dictionary=True).save()
-        except Exception as e:
-            print(e)
-            return Response('Failed: error', 500)
+        w = enchant.Dict("en_US")
+        word = ''.join(filter(str.isalpha, r['word'])).lower()
+        # if it's an actual word try to upload the word
+        if w.check(word):
+            try:
+                output = s3_helper.upload_file_to_s3(file)
+                Dictionary(word=word, url=output, in_dictionary=True).save()
+            except Exception as e:
+                print(e)
+                return Response('Failed: error uploading word', 501)
+        else:
+            return Response('Failed: word provided is not a vaild english word', 400)
     else:
         return redirect('/dictionary/create')
     return Response('Success', 200)
@@ -78,12 +84,12 @@ def delete_word():
             Dictionary.objects(word=input_).delete()
         except Exception as e:
             print(e)
-            return Response('Failed', 500)
+            return Response('Failed: error uploading word', 501)
         return Response('Success: word deleted from the dictionary', 200)
     return Response('Word not found', 204)
 
 
-@dictionary.route('/dictionary/<string:word>', methods=['GET'])
+@dictionary.route('/dictionary/<string:word>', methods=['GET', 'POST'])
 def get_word(word):
     """Get a word in the dictionary
 
@@ -95,17 +101,24 @@ def get_word(word):
     :rtype: JSON
     """
     word = ''.join(filter(str.isalpha, word)).lower()
-    if not Dictionary.objects(word=word):
-        Dictionary(word=word, times_requested=1).save()
-        return Response('Word not found', 404)
 
-    o = Dictionary.objects.get(word=word)
-    if o.in_dictionary == False:
-        Dictionary.objects(word=word).update_one(
-            upsert=True, inc__times_requested=1)
-        return Response('Word not found', 204)
+    if request.method == 'GET':
+        o = Dictionary.objects.get_or_404(word=word, in_dictionary=True)
+        return Response(o.to_json(), 200, mimetype='application/json')
 
-    return Response(o.to_json(), 200, mimetype='application/json')
+    if request.method == 'POST':
+        w = enchant.Dict("en_US")
+        if w.check(word):
+            if Dictionary.objects(word=word, in_dictionary=False):
+                Dictionary.objects(word=word).update_one(
+                    upsert=True, inc__times_requested=1)
+            elif Dictionary.objects(word=word, in_dictionary=True):
+                return Response('Failed: word already exists', 409)
+            else:
+                Dictionary(word=word, times_requested=1).save()
+        else:
+            return Response('Failed: word provided is not a vaild english word', 400)
+        return Response('Success: request received', 200)
 
 
 @dictionary.route('/dictionary', methods=['GET'])
