@@ -23,7 +23,7 @@ class Document(db.Document, gj.Document):
 
 
 class Module(Document):
-    module_name = db.StringField(required=True, max_length=20, unique=True)
+    module_name = db.StringField(required=True, max_length=100, unique=True)
     details = db.StringField(max_length=500)
     parent = db.ObjectIdField(default=None)
     words = db.ListField(gj.FollowReferenceField(
