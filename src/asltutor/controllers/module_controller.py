@@ -144,7 +144,7 @@ def delete_module(moduleId):
             # link parent to child
             Module.objects(parent=o.id).update(parent=o.parent)
     else:
-        # if it does have a parent meaning it's the first module
+        # if it does not have a parent meaning it's the first module
         Module.objects(parent=o.id).update(parent=None)
 
     # remove all quizzes for the module
