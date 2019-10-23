@@ -5,6 +5,7 @@ from flask import Blueprint
 from asltutor import s3_helper
 from werkzeug import secure_filename
 from flask import render_template
+import enchant
 
 dictionary = Blueprint('dictionary', __name__)
 
@@ -78,12 +79,12 @@ def delete_word():
             Dictionary.objects(word=input_).delete()
         except Exception as e:
             print(e)
-            return Response('Failed', 500)
+            return Response('Failed', 501)
         return Response('Success: word deleted from the dictionary', 200)
     return Response('Word not found', 204)
 
 
-@dictionary.route('/dictionary/<string:word>', methods=['GET'])
+@dictionary.route('/dictionary/<string:word>', methods=['GET', 'POST'])
 def get_word(word):
     """Get a word in the dictionary
 
@@ -95,17 +96,24 @@ def get_word(word):
     :rtype: JSON
     """
     word = ''.join(filter(str.isalpha, word)).lower()
-    if not Dictionary.objects(word=word):
-        Dictionary(word=word, times_requested=1).save()
-        return Response('Word not found', 404)
 
-    o = Dictionary.objects.get(word=word)
-    if o.in_dictionary == False:
-        Dictionary.objects(word=word).update_one(
-            upsert=True, inc__times_requested=1)
-        return Response('Word not found', 204)
+    if request.method == 'GET':
+        o = Dictionary.objects.get_or_404(word=word, in_dictionary=True)
+        return Response(o.to_json(), 200, mimetype='application/json')
 
-    return Response(o.to_json(), 200, mimetype='application/json')
+    if request.method == 'POST':
+        w = enchant.Dict("en_US")
+        if w.check(word):
+            if Dictionary.objects(word=word, in_dictionary=False):
+                Dictionary.objects(word=word).update_one(
+                    upsert=True, inc__times_requested=1)
+            elif Dictionary.objects(word=word, in_dictionary=True):
+                return Response('Failed: word already exists', 409)
+            else:
+                Dictionary(word=word, times_requested=1).save()
+        else:
+            return Response('Failed: word provided is not a vaild english word', 400)
+        return Response('Success: request received', 200)
 
 
 @dictionary.route('/dictionary', methods=['GET'])
