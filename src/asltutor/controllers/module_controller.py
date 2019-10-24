@@ -34,6 +34,14 @@ def create_module():
     # save it so we have an Id to reference
     mod.save()
 
+    # if a parent is not provided then the new module is the new head of the module list
+    if 'parent' not in r:
+        # checks to make sure it is not the first module
+        if Module.objects(parent__exists=0, id__ne=mod.id):
+            # find the module with no parent node and upsert parent to new modules id
+            Module.objects(parent__exists=0).update_one(
+                upsert=True, parent=mod.id)
+
     # get the parent if it exists
     if 'parent' in r:
         err = Module.error_checker(id=r['parent'])
@@ -82,12 +90,6 @@ def create_module():
         print(e)
         if old_id:
             Module.objects(parent=r['parent']).update_one(parent=old_id)
-
-    # if a parent is not provided then the new module is the new head of the module list
-    if 'parent' not in r:
-        # find the module with no parent node and upsert parent to new modules id
-        Module.objects(parent__exists=0).update_one(
-            upsert=True, parent=mod.id)
 
     return Response('Success', 200)
 
