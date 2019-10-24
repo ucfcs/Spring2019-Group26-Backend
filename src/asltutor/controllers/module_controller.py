@@ -34,6 +34,14 @@ def create_module():
     # save it so we have an Id to reference
     mod.save()
 
+    # if a parent is not provided then the new module is the new head of the module list
+    if 'parent' not in r:
+        # checks to make sure it is not the first module
+        if Module.objects(parent__exists=0, id__ne=mod.id):
+            # find the module with no parent node and upsert parent to new modules id
+            Module.objects(parent__exists=0).update_one(
+                upsert=True, parent=mod.id)
+
     # get the parent if it exists
     if 'parent' in r:
         err = Module.error_checker(id=r['parent'])
@@ -83,12 +91,6 @@ def create_module():
         if old_id:
             Module.objects(parent=r['parent']).update_one(parent=old_id)
 
-    # if a parent is not provided then the new module is the new head of the module list
-    if 'parent' not in r:
-        # find the module with no parent node and upsert parent to new modules id
-        Module.objects(parent__exists=0).update_one(
-            upsert=True, parent=mod.id)
-
     return Response('Success', 200)
 
 
@@ -124,8 +126,7 @@ def delete_module(moduleId):
     """Delete a module from the database
 
     Deletes the module and all of it quizzes from the database.
-    Must also adjust the it's parents and/or children. Can use
-    either objectId or the module name
+    Must also adjust the it's parents and/or children.
 
     :param moduleId: The Id of the module that an admin is deleting.
     :type submissionId: str
@@ -138,22 +139,22 @@ def delete_module(moduleId):
     o = Module.objects.get_or_404(id=moduleId)
 
     # link up the parents to the new children and vice versa.
-    # Unlink if no parents or children exist.
+    # if it has a parent
     if o.parent != None:
-        if o.child != None:
-            # parent exists, child exists
-            Module.objects(id=o.parent).update_one(child=o.child)
-            Module.objects(id=o.child).update_one(parent=o.parent)
-        else:
-            # parent exists, child does not exist
-            Module.objects(id=o.parent).update_one(child=None)
+        # if it has a child
+        if Module.objects(parent=o.id):
+            # link parent to child
+            Module.objects(parent=o.id).update(parent=o.parent)
     else:
-        # parent does not exist, child exists
-        Module.objects(id=o.child).update_one(parent=None)
+        # if it does not have a parent meaning it's the first module
+        Module.objects(parent=o.id).update(parent=None)
 
+    # remove all quizzes for the module
     for e in o.quiz:
         e.delete()
+    # delete the module
     o.delete()
+
     return Response('Success', 200)
 
 

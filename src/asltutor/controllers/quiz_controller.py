@@ -113,7 +113,7 @@ def create_or_get_quiz(id_):
         return Response(quiz.to_json(), 200, mimetype='application/json')
 
     else:
-        return Response('Failed: server error', 500)
+        return Response('Failed: message me', 501)
 
 
 @quiz.route('/module/quiz/delete/id/<quizId>', methods=['POST'])
@@ -180,7 +180,7 @@ def create_or_get_question(id_):
         return Response(question.to_json(), 200, mimetype='application/json')
 
     else:
-        return Response('Failed: server error', 500)
+        return Response('Failed: message me', 501)
 
 
 @quiz.route('/module/quiz/question/delete/id/<questionId>', methods=['POST'])
@@ -205,6 +205,7 @@ def delete_question(questionId):
 def grade_and_verify(list, sub):
     count = 0
     answers = []
+    num_questions = len(Quiz.objects.get(id=sub.quiz_id.id)['questions'])
     for i in list:
         if ObjectId.is_valid(i['question_id']):
             q = Question.objects.get(id=i['question_id'])
@@ -214,7 +215,7 @@ def grade_and_verify(list, sub):
                 count += 1
         else:
             return Response('Failed: invalid question Id', 400)
-    sub.grade = (count / len(list)) * 100
+    sub.grade = (count / num_questions) * 100
     sub.user_answers = answers
     return sub
 
