@@ -34,10 +34,8 @@ myclient = db.connect('asl', host='mongodb://localhost:27017/asl_tutor')
 # print("Creating the mongo database handle: asl")
 asl = myclient['asl_tutor']
 
-# Two step verification
-
-
 def check():
+    # Two step verification
     inn = None
     print("Are you sure? [y/N]:")
     while inn == None:
