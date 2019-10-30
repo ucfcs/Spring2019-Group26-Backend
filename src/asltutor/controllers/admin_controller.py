@@ -125,3 +125,63 @@ def get_submissions():
         if subs:
             return Response(subs.to_json(), mimetype='application/json')
     return Response('Failed: No submission found for that query', 204)
+
+
+@admin.route('/admin/dictionary', methods=['GET'])
+def list_words():
+    """Get a list of all words that have have not been approved yet.
+
+    Returns a list of all word objects that have been uploaded to our crowdsorcing page
+    but have not been approved
+
+    :query param start: Where the user wants the list to start
+    :type submission_id: int
+    :query param limit: How many words the user wants per page
+    :type quiz: int
+
+    :rtype: JSON
+    """
+
+    start = request.args.get('start', None)
+    if start:
+        start = int(start)
+        if start >= Dictionary.objects(in_dictionary=False, url__ne=None).count():
+            start = 0
+    else:
+        start = 0
+
+    limit = request.args.get('limit', None)
+    if limit:
+        limit = int(limit)
+        if limit < 5 or limit > 100:
+            limit = 20
+    else:
+        limit = 20
+
+    return Response(Dictionary.objects(in_dictionary=False, url__ne=None)[start:limit].to_json(), 200, mimetype='application/json')
+
+
+@admin.route('/admin/dictionary', methods=['POST'])
+def add_word():
+    """Approve words and make them publicly available
+
+    Sets the in_dictionary value to true for the words sent
+
+    request body
+
+    :rtype: None
+    """
+    if request.content_type != 'application/json':
+        return Response('Failed: Content-type must be application/json', 415)
+
+    r = request.get_json()
+    if 'word' not in r:
+        return Response('Failed: invalid request', 400)
+
+    if len(r['word']) == 0:
+        return Response('Failed: no words provided', 400)
+
+    for e in r['word']:
+        Dictionary.objects(word=e).update(in_dictionary=True)
+
+    return Response('Success, updated the dictionary', 200)
