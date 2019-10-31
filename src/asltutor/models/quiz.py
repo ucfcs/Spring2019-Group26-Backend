@@ -35,7 +35,7 @@ class Question(Document):
 
 
 class Quiz(Document):
-    quiz_name = db.StringField(required=True, max_length=20)
+    quiz_name = db.StringField(required=True, max_length=100)
     details = db.StringField(max_length=500, required=True)
     questions = db.ListField(gj.FollowReferenceField(
         Question, reverse_delete_rule=PULL))
