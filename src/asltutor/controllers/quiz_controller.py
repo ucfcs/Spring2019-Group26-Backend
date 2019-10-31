@@ -2,73 +2,12 @@ from asltutor.models.quiz import Quiz, Question
 from asltutor.models.module import Module
 from asltutor.models.dictionary import Dictionary
 from asltutor.models.submission import Submission, UserAnswers
-from asltutor.models.user import User
+from asltutor.models.user import User, Completed_Modules
 from flask import Blueprint
 from flask import request, Response
 from bson import ObjectId
 
 quiz = Blueprint('quiz', __name__)
-
-# deprecated
-# @quiz.route('/module/quiz/id/<moduleId>', methods=['POST'])
-
-
-def create_bulk(moduleId):
-    """
-    If you have a complete quiz pass it here and it will populate
-    all the fields for the whole quiz
-
-    Create a quiz
-    path parameter: /module/quiz/id/<moduleId>
-    request body
-
-    :rtype: None
-    """
-
-    # check for json
-    if request.content_type != 'application/json':
-        return Response('Failed: Content-type must be application/json', 415)
-
-    r = request.get_json()
-    """
-    Since questions are added first we check to make sure they are
-    ALL vaild before saving them to the DB
-    """
-    ques = []
-    try:
-        for i in range(len(r['questions'])):
-            j = r['questions'][i]
-            q = Question(**j)
-            q.validate()
-            ques.append(q)
-        """
-        If we get here then all of the questions are correct so
-        we save them to our DB so our quiz has something to reference
-        """
-        for e in ques:
-            e.save()
-
-        quiz = Quiz(quiz_name=r['quiz_name'],
-                    details=r['details'], questions=ques)
-        quiz.validate()
-        """
-        if we get here with no errors then we're good to save
-        the quiz to our DB
-        """
-        quiz.save()
-    except:
-        """
-        Something went wrong burn it down and return an error
-        """
-        for e in ques:
-            e.delete()
-        quiz.delete()
-        return Response('Failed: invalid entires', 400)
-        """
-        Add the quiz to the correct module
-        """
-    Module.objects(id=moduleId).update_one(add_to_set__quiz=quiz)
-    return Response('Success', 200)
 
 
 @quiz.route('/module/quiz/id/<id_>', methods=['POST', 'GET'])
@@ -101,8 +40,12 @@ def create_or_get_quiz(id_):
             return Response('Failed: Content-type must be application/json', 415)
         r = request.get_json()
         try:
-            quiz = Quiz(**r)
+            quiz = Quiz(quiz_name=r['quiz_name'], details=r['details'])
             quiz.save()
+            ret = add_questions(quiz.id, r)
+            if ret:
+                quiz.delete()
+                return ret
             Module.objects(id=id_).update_one(add_to_set__quiz=quiz)
         except:
             return Response('Failed: invalid request', 400)
@@ -111,9 +54,6 @@ def create_or_get_quiz(id_):
     elif request.method == 'GET':
         quiz = Quiz.objects.get_or_404(id=id_)
         return Response(quiz.to_json(), 200, mimetype='application/json')
-
-    else:
-        return Response('Failed: message me', 501)
 
 
 @quiz.route('/module/quiz/delete/id/<quizId>', methods=['POST'])
@@ -135,6 +75,27 @@ def delete_quiz(quizId):
     return Response('Success', 200)
 
 
+def add_questions(id_, r):
+    if 'questions' not in r:
+        return Response('Failed: no questions provided', 400)
+
+    for e in r['questions']:
+        if not ObjectId.is_valid(e['word']):
+            return Response('Failed: invalid Id', 400)
+
+        if not Dictionary.objects(id=e['word'], in_dictionary=True):
+            return Response('', 204)
+
+    for e in r['questions']:
+        try:
+            question = Question(
+                question_text=e['question_text'], word=e['word'])
+            question.save()
+            Quiz.objects(id=id_).update_one(push__questions=question)
+        except:
+            return Response('Failed: invalid request', 400)
+
+
 @quiz.route('/module/quiz/question/id/<id_>', methods=['POST', 'GET'])
 def create_or_get_question(id_):
     """
@@ -148,8 +109,6 @@ def create_or_get_question(id_):
     GET:
         Get a single question for a quiz
 
-        Get a single quiz based on a given quiz Id
-
         path parameter: /module/quiz/question/id/<questionId>
         no request body
 
@@ -162,25 +121,16 @@ def create_or_get_question(id_):
         if request.content_type != 'application/json':
             return Response('Failed: Content-type must be application/json', 415)
         r = request.get_json()
-        if not ObjectId.is_valid(r['word']):
-            return Response('Failed: invalid Id', 400)
 
-        word = Dictionary.objects.get_or_404(id=r['word'])
-
-        try:
-            question = Question(question_text=r['question_text'], word=word)
-            question.save()
-            Quiz.objects(id=id_).update_one(push__questions=question)
-        except:
-            return Response('Failed: invalid request', 400)
-        return Response('Success', 200)
+        ret = add_questions(id_, r)
+        if ret:
+            return ret
+        else:
+            return Response('Success', 200)
 
     elif request.method == 'GET':
         question = Question.objects.get_or_404(id=id_)
         return Response(question.to_json(), 200, mimetype='application/json')
-
-    else:
-        return Response('Failed: message me', 501)
 
 
 @quiz.route('/module/quiz/question/delete/id/<questionId>', methods=['POST'])
@@ -252,4 +202,8 @@ def submit_quiz():
                      quiz_id=r['quiz_id'], module_id=r['module_id'])
     sub = grade_and_verify(r['user_answers'], sub)
     sub.save()
+    if sub.grade >= 80:
+        module = Module.objects.get(id=r['module_id'])
+        User.objects(id=r['user_id']).update(push__completed_modules=Completed_Modules(
+            module_id=module.id, module_name=module.module_name))
     return Response(sub.to_json(), 200, mimetype='application/json')
