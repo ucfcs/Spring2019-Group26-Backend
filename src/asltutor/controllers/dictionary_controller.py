@@ -34,7 +34,6 @@ def add_word():
         file.mimetype
 
     """
-    # TODO need to have admin validate the words
     if file:
         file.filename = secure_filename(file.filename)
         w = enchant.Dict("en_US")
