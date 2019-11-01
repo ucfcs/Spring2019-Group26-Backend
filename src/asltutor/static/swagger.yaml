@@ -272,7 +272,7 @@ paths:
   /admin/dictionary/create:
     post:
       tags:
-        - dictionary
+        - admin
       summary: Add a word to the dictionary
       description: Admins are able to add an ASL animation to our dictionary
       requestBody:

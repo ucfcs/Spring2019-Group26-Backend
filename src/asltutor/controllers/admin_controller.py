@@ -189,7 +189,7 @@ def approve_word():
     return Response('Success, updated the dictionary', 200)
 
 
-@dictionary.route('/admin/dictionary/create', methods=['POST'])
+@admin.route('/admin/dictionary/create', methods=['POST'])
 def add_word():
     """Add a word to the dictionary
 
