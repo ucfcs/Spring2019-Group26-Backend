@@ -268,6 +268,27 @@ paths:
           description: 'Failed: invalid request'
         '415':
           description: 'Failed: Content-type must be application/json'
+
+  /admin/dictionary/create:
+    post:
+      tags:
+        - dictionary
+      summary: Add a word to the dictionary
+      description: Admins are able to add an ASL animation to our dictionary
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PostDictionary'
+        required: true
+      responses:
+        '200':
+          description: 'Success: word added to dictionary'
+        '501':
+          description: 'Failed: error uploading word'
+        '400':
+          description: 'Failed: word provided is not a vaild english word/Missing file'
+
   /dictionary:
     get:
       tags:
@@ -335,7 +356,7 @@ paths:
       tags:
         - dictionary
       summary: Add a word to the dictionary
-      description: Admins are able to add an ASL animation to our dictionary
+      description: Users are able to upload an ASL video to our S3 bucket for approval
       requestBody:
         content:
           multipart/form-data:
