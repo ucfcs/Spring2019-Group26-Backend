@@ -5,6 +5,8 @@ from asltutor.models.user import User
 from flask import Blueprint
 from flask import request, Response
 from bson import ObjectId
+from asltutor import s3_helper
+from werkzeug import secure_filename
 
 admin = Blueprint('admin', __name__)
 
@@ -162,7 +164,7 @@ def list_words():
 
 
 @admin.route('/admin/dictionary', methods=['POST'])
-def add_word():
+def approve_word():
     """Approve words and make them publicly available
 
     Sets the in_dictionary value to true for the words sent
@@ -185,3 +187,46 @@ def add_word():
         Dictionary.objects(word=e).update(in_dictionary=True)
 
     return Response('Success, updated the dictionary', 200)
+
+
+@dictionary.route('/admin/dictionary/create', methods=['POST'])
+def add_word():
+    """Add a word to the dictionary
+
+    Admins are able to add an ASL animation to our dictionary
+
+    path parameter: /admin/dictionary/create
+    request body
+
+    :rtype: None
+    """
+    if 'file' not in request.files:
+        return Response('Failed: missing file', 400)
+    file = request.files['file']
+    r = request.form.to_dict()
+    """
+        These attributes are also available
+
+        file.filename
+        file.content_type
+        file.content_length
+        file.mimetype
+
+    """
+    if file:
+        file.filename = secure_filename(file.filename)
+        w = enchant.Dict("en_US")
+        word = ''.join(filter(str.isalpha, r['word'])).lower()
+        # if it's an actual word try to upload the word
+        if w.check(word):
+            try:
+                output = s3_helper.upload_file_to_s3(file)
+                Dictionary(word=word, url=output, in_dictionary=True).save()
+            except Exception as e:
+                print(e)
+                return Response('Failed: error uploading word', 501)
+        else:
+            return Response('Failed: word provided is not a vaild english word', 400)
+    else:
+        return redirect('/admin/create')
+    return Response('Success', 200)
