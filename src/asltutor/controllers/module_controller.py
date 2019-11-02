@@ -62,7 +62,6 @@ def create_module():
     # if the user provided a list of words the verify them and add them to the module
     if 'words' in r:
         for i in r['words']:
-            print("words")
             # a word id is wrong return error
             err = Dictionary.error_checker(i)
             if err:
@@ -75,7 +74,6 @@ def create_module():
     # if the user provided a list of quizzes the verify them and add them to the module
     if 'quiz' in r:
         for i in r['quiz']:
-            print("quiz")
             # a quiz id is wrong return error
             err = Quiz.error_checker(i)
             if err:

@@ -212,6 +212,84 @@ paths:
                   $ref: '#/components/schemas/GetSubmission'
         '412':
           description: 'Failed: specify at least one filter to view submissions'
+  /admin/dictionary:
+    get:
+      tags:
+        - admin
+      summary: Get a list of all words that have have not been approved yet.
+      description: Returns a list of all word objects that have been uploaded to our crowdsorcing page but have not been approved
+      parameters:
+        - name: start
+          in: query
+          description: Where the user wants the list to start
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: integer
+            format: int32
+        - name: limit
+          in: query
+          description: How many words the user wants per page
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: 'Success: word object list returned'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetWord'
+    post:
+      tags:
+        - admin
+      summary: Approve words and make them publicly available
+      description: Sets the in_dictionary value to true for the words sent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Object containing a list of words
+              type: object
+              properties:
+                word:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: 'Success: words have been made public'
+        '400':
+          description: 'Failed: invalid request'
+        '415':
+          description: 'Failed: Content-type must be application/json'
+
+  /admin/dictionary/create:
+    post:
+      tags:
+        - admin
+      summary: Add a word to the dictionary
+      description: Admins are able to add an ASL animation to our dictionary
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PostDictionary'
+        required: true
+      responses:
+        '200':
+          description: 'Success: word added to dictionary'
+        '501':
+          description: 'Failed: error uploading word'
+        '400':
+          description: 'Failed: word provided is not a vaild english word/Missing file'
+
   /dictionary:
     get:
       tags:
@@ -279,7 +357,7 @@ paths:
       tags:
         - dictionary
       summary: Add a word to the dictionary
-      description: Admins are able to add an ASL animation to our dictionary
+      description: Users are able to upload an ASL video to our S3 bucket for approval
       requestBody:
         content:
           multipart/form-data:
@@ -443,42 +521,12 @@ paths:
           description: 'Failed: invalid Id'
         '404':
           description: 'Failed: module not found'
-  '/module/quiz/id/{moduleId}':
-    post:
-      deprecated: true
-      tags:
-        - quiz
-      summary: Fast create quiz
-      description: >-
-        If you have a complete quiz pass it here and it will populate all the
-        fields for the whole quiz
-      parameters:
-        - name: moduleId
-          in: path
-          description: The module Id for the module that a user is adding a quiz to
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: string
-            format: ObjectId
-      responses:
-        '200':
-          description: 'Success: all question objects have been returned'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BulkCreateQuiz'
-        '400':
-          description: 'Failed: invalid entries'
-        '415':
-          description: 'Failed: Content-type must be application/json'
   '/module/quiz/id/{id}':
     post:
       tags:
         - quiz
       summary: Create quiz
-      description: Create a quiz with no questions and attach it to a module
+      description: Create a quiz with questions and attach it to a module
       parameters:
         - name: id
           in: path
@@ -490,7 +538,7 @@ paths:
             type: string
             format: ObjectId
       requestBody:
-        description: A request containing the quiz name and details about the quiz
+        description: A request containing the quiz name and details about the quiz and an array of questions
         content:
           application/json:
             schema:
@@ -503,8 +551,6 @@ paths:
           description: 'Failed: invalid Id'
         '415':
           description: 'Failed: Content-type must be application/json'
-        '501':
-          description: 'Failed: message me'
     get:
       tags:
         - quiz
@@ -531,18 +577,16 @@ paths:
           description: 'Failed: invalid Id'
         '404':
           description: 'Failed: quiz not found'
-        '501':
-          description: 'Failed: message me'
   '/module/quiz/question/id/{id}':
     post:
       tags:
         - quiz
-      summary: Create question
-      description: Create a single question and attach it to a quiz
+      summary: Create questions
+      description: Create one or more questions and attach them to a single quiz
       parameters:
         - name: id
           in: path
-          description: The quiz Id for the quiz that a user is adding a question to
+          description: The quiz Id for the quiz that a user is adding the questions to
           required: true
           style: simple
           explode: false
@@ -550,11 +594,17 @@ paths:
             type: string
             format: ObjectId
       requestBody:
-        description: A request containing the question text and the objectId of the word
+        description: A request containing an array of question objects containing the question text and the objectId of the word
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PostQuestion'
+              description: Object containing a list of questions
+              type: object
+              properties:
+                questions:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/PostQuestion'
       responses:
         '200':
           description: 'Success: all question objects have been returned'
@@ -562,8 +612,6 @@ paths:
           description: 'Failed: invalid entries'
         '415':
           description: 'Failed: Content-type must be application/json'
-        '501':
-          description: 'Failed: message me'
     get:
       tags:
         - quiz
@@ -590,8 +638,6 @@ paths:
           description: 'Failed: invalid Id'
         '404':
           description: 'Failed: question not found'
-        '501':
-          description: 'Failed: message me'
   '/module/quiz/delete/id/{quizId}':
     post:
       tags:
@@ -924,39 +970,21 @@ components:
           description: An array of all the quiz objects included in the module
           items:
             $ref: '#/components/schemas/GetQuiz'
-    PostQuestion:
-      description: Question object
-      type: object
-      properties:
-        question_text:
-          type: string
-        word:
-          $ref: '#/components/schemas/GetWord'
-      example:
-        question_text: Hi this is a test
-        word: someId
-    GetQuestion:
-      description: Question object
-      type: object
-      properties:
-        id:
-          type: string
-          format: ObjectId
-        question_text:
-          type: string
-        word:
-          $ref: '#/components/schemas/GetWord'
     PostQuiz:
       description: Quiz object
       type: object
       properties:
         quiz_name:
           type: string
+          example: Test quiz
         details:
           type: string
-      example:
-        quiz_name: Test quiz
-        details: This is a test quiz
+          example: This is a test quiz
+        questions:
+          type: array
+          description: An array of all the questions being added to a quiz
+          items:
+            $ref: '#/components/schemas/PostQuestion'
     GetQuiz:
       description: Quiz object
       type: object
@@ -972,3 +1000,26 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GetQuestion'
+    PostQuestion:
+      description: Question object
+      type: object
+      properties:
+        question_text:
+          type: string
+        word:
+          type: string
+          format: objectId
+      example:
+        question_text: Hi this is a test
+        word: someId
+    GetQuestion:
+      description: Question object
+      type: object
+      properties:
+        id:
+          type: string
+          format: ObjectId
+        question_text:
+          type: string
+        word:
+          $ref: '#/components/schemas/GetWord'
