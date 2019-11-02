@@ -10,11 +10,6 @@ import enchant
 dictionary = Blueprint('dictionary', __name__)
 
 
-@dictionary.route('/dictionary/create')
-def create():
-    return render_template('upload.html')
-
-
 @dictionary.route('/dictionary/create', methods=['POST'])
 def add_word():
     """Add a word to the dictionary
@@ -29,7 +24,6 @@ def add_word():
     if 'file' not in request.files:
         return Response('Failed: missing file', 400)
     file = request.files['file']
-
     r = request.form.to_dict()
     """
         These attributes are also available
@@ -40,7 +34,6 @@ def add_word():
         file.mimetype
 
     """
-    # TODO need to have admin validate the words
     if file:
         file.filename = secure_filename(file.filename)
         w = enchant.Dict("en_US")
@@ -49,7 +42,7 @@ def add_word():
         if w.check(word):
             try:
                 output = s3_helper.upload_file_to_s3(file)
-                Dictionary(word=word, url=output, in_dictionary=True).save()
+                Dictionary(word=word, url=output, in_dictionary=False).save()
             except Exception as e:
                 print(e)
                 return Response('Failed: error uploading word', 501)
@@ -84,21 +77,32 @@ def delete_word():
             Dictionary.objects(word=input_).delete()
         except Exception as e:
             print(e)
-            return Response('Failed: error uploading word', 501)
+            return Response('Failed: error deleting word', 501)
         return Response('Success: word deleted from the dictionary', 200)
     return Response('Word not found', 204)
 
 
 @dictionary.route('/dictionary/<string:word>', methods=['GET', 'POST'])
 def get_word(word):
-    """Get a word in the dictionary
+    """
+    GET:
+        Get a word in the dictionary
 
-    Returns a JSON response contianing the word document of the word requested
+        Returns a JSON response contianing the word document of the word requested
 
-    path parameter: /dictionary/{word}
-    no request body
+        path parameter: /dictionary/{word}
+        no request body
 
-    :rtype: JSON
+        :rtype: JSON
+    POST:
+        Request that we add a word to our dictionary
+
+        Increments the times requested counter for a word
+
+        path parameter: /dictionary/{word}
+        no request body
+
+        :rtype: None
     """
     word = ''.join(filter(str.isalpha, word)).lower()
 

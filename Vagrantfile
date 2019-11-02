@@ -15,7 +15,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   memory = "1024"
   cpus = "2"
   size = "50GB"
-
+  config.vm.provision "shell", :inline => "sudo service mongod start", run: "always"
 
   config.vm.define "sd2", primary: true do |u64|
     #u64.vm.network "private_network", ip: "10.10.10.20"
