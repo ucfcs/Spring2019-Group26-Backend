@@ -45,6 +45,7 @@ For development you will need to add `S3_BUCKET`, `S3_KEY`, and `S3_SECRET_ACCES
 
 From the terminal run the following commands:
 ```bash
+sudo apt install enchant
 cd ~/Spring2019-Group26-Backend
 chmod +x setupenv.sh
 ./setupenv.sh
