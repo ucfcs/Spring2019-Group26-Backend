@@ -155,16 +155,32 @@ def delete_question(questionId):
 def grade_and_verify(list, sub):
     count = 0
     answers = []
-    num_questions = len(Quiz.objects.get(id=sub.quiz_id.id)['questions'])
+    hm = {}
+
+    # make a hash map of the question objects
+    quiz = Quiz.objects.get(id=sub.quiz_id.id)
+    for e in quiz['questions']:
+        hm[e.id] = e.word.word
+
     for i in list:
-        if ObjectId.is_valid(i['question_id']):
-            q = Question.objects.get(id=i['question_id'])
+        # check if the oids are valid and exist
+        err = Question.error_checker(i['question_id'])
+        if err:
+            return err
+
+        # check if the question is on this quiz
+        if ObjectId(i['question_id']) in hm:
             answers.append(UserAnswers(
-                question_id=i['question_id'], user_answer=i['user_answer'], correct_answer=q.word['word']))
-            if i['user_answer'] == q.word['word']:
+                question_id=i['question_id'], user_answer=i['user_answer'], correct_answer=hm[ObjectId(i['question_id'])]))
+
+            # check if the answer is right
+            if i['user_answer'] == hm[ObjectId(i['question_id'])]:
                 count += 1
         else:
-            return Response('Failed: invalid question Id', 400)
+            return Response('Failed: question id: {} is not a member of quiz: {}'.format(i['question_id'], quiz.quiz_name), 400)
+
+    # grade the quiz
+    num_questions = len(quiz['questions'])
     sub.grade = (count / num_questions) * 100
     sub.user_answers = answers
     return sub
@@ -197,13 +213,38 @@ def submit_quiz():
     if not Module.objects(id=r['module_id'], quiz=r['quiz_id']):
         return Response('Failed: quiz is not a member of module', 400)
 
-    # this is all kinda nightmare fuel but it works
+    # if the module has a parent check to see if the user has completed it
+    module = Module.objects.get(id=r['module_id'])
+    if module.parent:
+        if not User.objects(id=r['user_id'], completed_modules__module_id=module.parent):
+            return Response('Failed: user has not completed the parent module', 403)
+
+    # build submission object
     sub = Submission(user_id=r['user_id'],
                      quiz_id=r['quiz_id'], module_id=r['module_id'])
+
+    # grade quiz
     sub = grade_and_verify(r['user_answers'], sub)
+
+    # check for any errors in grading the quiz
+    if isinstance(sub, Response):
+        return sub
+
+    # No errors so save the submission
     sub.save()
+
+    # update the completed modules field
     if sub.grade >= 80:
-        module = Module.objects.get(id=r['module_id'])
-        User.objects(id=r['user_id']).update(push__completed_modules=Completed_Modules(
-            module_id=module.id, module_name=module.module_name))
+        completed = True
+
+        # check if the user has completed all the quizzes for the module
+        for e in module.quiz:
+            if not Submission.objects(user_id=r['user_id'], module_id=module.id, quiz_id=e.id, grade__gte=80):
+                completed = False
+
+        # if so update the completed modules field for that user
+        if completed:
+            User.objects(id=r['user_id']).update(push__completed_modules=Completed_Modules(
+                module_id=module.id, module_name=module.module_name))
+
     return Response(sub.to_json(), 200, mimetype='application/json')
