@@ -242,8 +242,8 @@ def submit_quiz():
             if not Submission.objects(user_id=r['user_id'], module_id=module.id, quiz_id=e.id, grade__gte=80):
                 completed = False
 
-        # if so update the completed modules field for that user
-        if completed:
+        # If so and the module is not already marked as complete, mark it as complete
+        if completed and not User.objects(id=r['user_id'], completed_modules__module_id=module.id):
             User.objects(id=r['user_id']).update(push__completed_modules=Completed_Modules(
                 module_id=module.id, module_name=module.module_name))
 
