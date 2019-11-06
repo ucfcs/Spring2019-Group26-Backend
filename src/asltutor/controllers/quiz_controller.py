@@ -172,12 +172,12 @@ def grade_and_verify(list, sub):
         if ObjectId(i['question_id']) in hm:
             answers.append(UserAnswers(
                 question_id=i['question_id'], user_answer=i['user_answer'], correct_answer=hm[ObjectId(i['question_id'])]))
-
             # check if the answer is right
             if i['user_answer'] == hm[ObjectId(i['question_id'])]:
                 count += 1
+            del hm[ObjectId(i['question_id'])]
         else:
-            return Response('Failed: question id: {} is not a member of quiz: {}'.format(i['question_id'], quiz.quiz_name), 400)
+            return Response('Failed: invalid input', 400)
 
     # grade the quiz
     num_questions = len(quiz['questions'])
