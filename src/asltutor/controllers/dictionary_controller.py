@@ -38,9 +38,9 @@ def add_word():
         file.filename = secure_filename(file.filename)
         w = enchant.Dict("en_US")
         word = ''.join(filter(str.isalpha, r['word'])).lower()
-        # if it's an actual word try to upload the word
+        # if it's an actual word try to upload the word and if we already have it
         if w.check(word):
-            if(Dictionary.objects.get(word=word) == None):
+            if len(Dictionary.objects(word=word)) == 0:
                 try:
                     output = s3_helper.upload_file_to_s3(file)
                     Dictionary(word=word, url=output, in_dictionary=False).save()
@@ -48,7 +48,7 @@ def add_word():
                     print(e)
                     return Response('Failed: error uploading word', 501)
             else:
-                return Response('Failed: Request for that word has been submitted. Please await admit approval', 400)
+                return Response('Failed: Request for that word has been submitted. Please await admin approval', 200)
         else:
             return Response('Failed: word provided is not a vaild english word', 400)
     else:
@@ -71,7 +71,7 @@ def delete_word():
     if not input_:
         return Response('Word not found', 204)
 
-    imput_ = ''.join(filter(str.isalpha, input_)).lower()
+    input_ = ''.join(filter(str.isalpha, input_)).lower()
     if Dictionary.objects(word=input_):
         try:
             url = Dictionary.objects.get(word=input_).url
