@@ -4,8 +4,9 @@ info:
   description: Full API documentation for ASL tutor backend
   version: 1.0.0-oas3
 servers:
-  - url: 'http://localhost:1337/v1'
-  - url: 'https://theasltutor.com/v1'
+  - url: "https://api.theasltutor.com"
+  - url: "https://g9b7uci07e.execute-api.us-east-1.amazonaws.com/beta"
+  - url: "http://localhost:1337/v1"
 paths:
   /user/create:
     post:
@@ -745,7 +746,7 @@ components:
           type: string
         lastname:
           type: string
-        dob:
+        DOB:
           type: string
           format: date
       required:
@@ -754,7 +755,7 @@ components:
       example:
         firstname: Jon
         lastname: Wick
-        dob: '1964-09-02'
+        DOB: '1964-09-02'
         username: baba_yaga
     PostDictionary:
       description: Word object
