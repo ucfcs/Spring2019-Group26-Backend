@@ -40,15 +40,15 @@ def add_word():
         word = ''.join(filter(str.isalpha, r['word'])).lower()
         # if it's an actual word try to upload the word and if we already have it
         if w.check(word):
-            if len(Dictionary.objects(word=word)) == 0:
+            if Dictionary.objects(word=word):
+                return Response('Failed: Request for that word has been submitted. Please await admin approval', 200)                
+            else:
                 try:
                     output = s3_helper.upload_file_to_s3(file)
                     Dictionary(word=word, url=output, in_dictionary=False).save()
                 except Exception as e:
                     print(e)
                     return Response('Failed: error uploading word', 501)
-            else:
-                return Response('Failed: Request for that word has been submitted. Please await admin approval', 200)
         else:
             return Response('Failed: word provided is not a vaild english word', 400)
     else:
