@@ -22,7 +22,7 @@ class Document(db.Document, gj.Document):
 
 class Dictionary(Document):
     word = db.StringField(required=True, unique=True)
-    url = db.URLField(unique=True)
+    url = db.URLField()
     in_dictionary = db.BooleanField(default=False)
     times_requested = db.IntField()
 
