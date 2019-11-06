@@ -24,7 +24,7 @@ class Document(db.Document, gj.Document):
 
 class Completed_Modules(db.EmbeddedDocument):
     module_id = db.LazyReferenceField(Module)
-    module_name = db.StringField(max_length=20)
+    module_name = db.StringField(max_length=100)
 
 
 class User(Document, UserMixin):

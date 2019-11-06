@@ -31,7 +31,7 @@ class Question(Document):
             return Response('Failed: invalid Id', 400)
 
         if not Question.objects(id=id):
-            return Response('Failed: quiestion object does not exist', 204)
+            return Response('', 204)
 
 
 class Quiz(Document):
