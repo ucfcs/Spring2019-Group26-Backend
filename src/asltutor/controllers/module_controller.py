@@ -107,6 +107,8 @@ def add_word():
 
     r = request.get_json()
 
+    if 'word_id' or 'module_id' not in r:
+        return Response('Failed: invalid request', 400)
     derr = Dictionary.error_checker(r['word_id'])
     merr = Module.error_checker(r['module_id'])
     if derr:
@@ -116,7 +118,7 @@ def add_word():
 
     word = Dictionary.objects.get(id=r['word_id'])
     Module.objects(id=r['module_id']).update_one(push__words=word)
-    return Response('Success', 200)
+    return Response('Success: word added to module', 200)
 
 
 @module.route('/module/delete/id/<moduleId>', methods=['POST'])
@@ -153,7 +155,7 @@ def delete_module(moduleId):
     # delete the module
     o.delete()
 
-    return Response('Success', 200)
+    return Response('Success: module and quizzes sucessfully deleted', 200)
 
 
 @module.route('/module/id/<moduleId>', methods=['GET'])
@@ -168,7 +170,7 @@ def get_module(moduleId):
     :rtype: json
     """
     if ObjectId.is_valid(moduleId) and Module:
-        return Response(Module.objects.get_or_404(id=moduleId).to_json(), mimetype='application/json')
+        return Response(Module.objects.get_or_404(id=moduleId).to_json(), 200, mimetype='application/json')
     return Response('Failed: invalid Id', 400)
 
 
