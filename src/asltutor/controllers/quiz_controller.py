@@ -47,13 +47,13 @@ def create_or_get_quiz(id_):
                 quiz.delete()
                 return ret
             Module.objects(id=id_).update_one(add_to_set__quiz=quiz)
-        except:
+        except Exception as e:
+            print(e)
             return Response('Failed: invalid request', 400)
-        return Response('Success', 200)
+        return Response('Success: Quiz has been created for a module', 200)
 
     elif request.method == 'GET':
-        quiz = Quiz.objects.get_or_404(id=id_)
-        return Response(quiz.to_json(), 200, mimetype='application/json')
+        return Response(Quiz.objects.get_or_404(id=id_).to_json(), 200, mimetype='application/json')
 
 
 @quiz.route('/module/quiz/delete/id/<quizId>', methods=['POST'])
@@ -72,7 +72,7 @@ def delete_quiz(quizId):
 
     quiz = Quiz.objects.get_or_404(id=quizId)
     quiz.delete()
-    return Response('Success', 200)
+    return Response('Success: quiz has been deleted', 200)
 
 
 def add_questions(id_, r):
@@ -80,6 +80,9 @@ def add_questions(id_, r):
         return Response('Failed: no questions provided', 400)
 
     for e in r['questions']:
+        if 'word' not in e:
+            return Response('Failed: word not provided', 400)
+
         if not ObjectId.is_valid(e['word']):
             return Response('Failed: invalid Id', 400)
 
@@ -92,7 +95,8 @@ def add_questions(id_, r):
                 question_text=e['question_text'], word=e['word'])
             question.save()
             Quiz.objects(id=id_).update_one(push__questions=question)
-        except:
+        except Exception as e:
+            print(e)
             return Response('Failed: invalid request', 400)
 
 
@@ -149,7 +153,7 @@ def delete_question(questionId):
 
     question = Question.objects.get_or_404(id=questionId)
     question.delete()
-    return Response('Success', 200)
+    return Response('Success: question has been deleted', 200)
 
 
 def grade_and_verify(list, sub):
