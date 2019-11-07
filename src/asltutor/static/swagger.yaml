@@ -21,8 +21,10 @@ paths:
       responses:
         '200':
           description: 'Success: user registered'
+        '400':
+          description: 'Failed: invalid request'
         '409':
-          description: 'Failed: field is already taken'
+          description: 'Failed: username already exists'
   '/user/{username}/submissions':
     get:
       tags:
@@ -289,6 +291,8 @@ paths:
           description: 'Failed: error uploading word'
         '400':
           description: 'Failed: word provided is not a vaild english word/Missing file'
+        '409':
+          description: 'Failed: Word has already been requested or already exists'
 
   /dictionary:
     get:
@@ -462,12 +466,12 @@ paths:
       responses:
         '200':
           description: 'Success: word added to module'
+        '204':
+          description: 'No content'
         '400':
           description: 'Failed: invalid Id'
         '415':
           description: 'Failed: Content-type must be application/json'
-        '404':
-          description: 'Failed: word or module not found'
   '/module/delete/id/{moduleId}':
     post:
       tags:
