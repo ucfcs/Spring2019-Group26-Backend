@@ -6,6 +6,7 @@ from asltutor import s3_helper
 from werkzeug import secure_filename
 from flask import render_template
 import enchant
+from datetime import datetime
 
 dictionary = Blueprint('dictionary', __name__)
 
@@ -40,14 +41,17 @@ def add_word():
         word = ''.join(filter(str.isalpha, r['word'])).lower()
         # if it's an actual word try to upload the word and if we already have it
         if w.check(word):
-            if Dictionary.objects(word=word):
-                return Response('Failed: Request for that word has been submitted. Please await admin approval', 200)                
+            if Dictionary.objects(word=word, url__exists=1):
+                return Response('Failed: Word has already been requested or already exists', 409)
             else:
                 try:
                     output = s3_helper.upload_file_to_s3(file)
-                    Dictionary(word=word, url=output, in_dictionary=False).save()
+                    if Dictionary.objects(word=word):
+                        Dictionary.objects(word=word).update_one(url=output)
+                    else:
+                        Dictionary(word=word, url=output).save()
                 except Exception as e:
-                    print(e)
+                    print(str(datetime.now()) + ' ' + e)
                     return Response('Failed: error uploading word', 501)
         else:
             return Response('Failed: word provided is not a vaild english word', 400)
@@ -79,7 +83,7 @@ def delete_word():
             s3_helper.delete_file_from_s3(url[-1])
             Dictionary.objects(word=input_).delete()
         except Exception as e:
-            print(e)
+            print(str(datetime.now()) + ' ' + e)
             return Response('Failed: error deleting word', 501)
         return Response('Success: word deleted from the dictionary', 200)
     return Response('Word not found', 204)
