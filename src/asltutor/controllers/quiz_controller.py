@@ -6,6 +6,7 @@ from asltutor.models.user import User, Completed_Modules
 from flask import Blueprint
 from flask import request, Response
 from bson import ObjectId
+from datetime import datetime
 
 quiz = Blueprint('quiz', __name__)
 
@@ -48,7 +49,7 @@ def create_or_get_quiz(id_):
                 return ret
             Module.objects(id=id_).update_one(add_to_set__quiz=quiz)
         except Exception as e:
-            print(e)
+            print(str(datetime.now()) + ' ' + e)
             return Response('Failed: invalid request', 400)
         return Response('Success: Quiz has been created for a module', 200)
 
@@ -96,7 +97,7 @@ def add_questions(id_, r):
             question.save()
             Quiz.objects(id=id_).update_one(push__questions=question)
         except Exception as e:
-            print(e)
+            print(str(datetime.now()) + ' ' + e)
             return Response('Failed: invalid request', 400)
 
 

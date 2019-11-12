@@ -9,7 +9,7 @@ from passlib.hash import pbkdf2_sha256
 from flask_login import login_user
 import jwt
 from mongoengine.errors import NotUniqueError
-
+from datetime import datetime
 
 user = Blueprint('user', __name__)
 
@@ -42,7 +42,7 @@ def create_user():
     try:
         newUser.save()
     except Exception as e:
-        print(e)
+        print(str(datetime.now()) + ' ' + e)
         return Response('Failed: invalid request', 400)
     return Response('Success: user added', 200)
 

@@ -5,6 +5,7 @@ from flask import request, Response
 from flask import Blueprint
 from bson import ObjectId
 from mongoengine.errors import NotUniqueError
+from datetime import datetime
 
 module = Blueprint('module', __name__)
 
@@ -28,7 +29,7 @@ def create_module():
     try:
         mod = Module(module_name=r['module_name'], details=r['details'])
     except Exception as e:
-        print(e)
+        print(str(datetime.now()) + ' ' + e)
         return Response('Failed: Bad request', 400)
 
     # save it so we have an Id to reference
@@ -85,7 +86,7 @@ def create_module():
     try:
         mod.save()
     except Exception as e:
-        print(e)
+        print(str(datetime.now()) + ' ' + e)
         if old_id:
             Module.objects(parent=r['parent']).update_one(parent=old_id)
 
