@@ -294,6 +294,33 @@ paths:
         '409':
           description: 'Failed: Word has already been requested or already exists'
 
+  /admin/dictionary/delete:
+    post:
+      tags:
+        - admin
+      summary: Deny words, remove the file from the S3 bucket and not the DB
+      description: Deletes the specified word from the S3 bucket and removes the URL field for that word
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Object containing a list of words
+              type: object
+              properties:
+                word:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: 'Success: words deleted'
+        '400':
+          description: 'Failed: invalid request'
+        '415':
+          description: 'Failed: Content-type must be application/json'
+        '501':
+          description: 'Failed: error deleting word'
+
   /dictionary:
     get:
       tags:
