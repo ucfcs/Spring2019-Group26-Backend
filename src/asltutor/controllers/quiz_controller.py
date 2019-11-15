@@ -6,6 +6,7 @@ from asltutor.models.user import User, Completed_Modules
 from flask import Blueprint
 from flask import request, Response
 from bson import ObjectId
+from datetime import datetime
 
 quiz = Blueprint('quiz', __name__)
 
@@ -47,13 +48,13 @@ def create_or_get_quiz(id_):
                 quiz.delete()
                 return ret
             Module.objects(id=id_).update_one(add_to_set__quiz=quiz)
-        except:
+        except Exception as e:
+            print(str(datetime.now()) + ' ' + e)
             return Response('Failed: invalid request', 400)
-        return Response('Success', 200)
+        return Response('Success: Quiz has been created for a module', 200)
 
     elif request.method == 'GET':
-        quiz = Quiz.objects.get_or_404(id=id_)
-        return Response(quiz.to_json(), 200, mimetype='application/json')
+        return Response(Quiz.objects.get_or_404(id=id_).to_json(), 200, mimetype='application/json')
 
 
 @quiz.route('/module/quiz/delete/id/<quizId>', methods=['POST'])
@@ -72,7 +73,7 @@ def delete_quiz(quizId):
 
     quiz = Quiz.objects.get_or_404(id=quizId)
     quiz.delete()
-    return Response('Success', 200)
+    return Response('Success: quiz has been deleted', 200)
 
 
 def add_questions(id_, r):
@@ -80,6 +81,9 @@ def add_questions(id_, r):
         return Response('Failed: no questions provided', 400)
 
     for e in r['questions']:
+        if 'word' not in e:
+            return Response('Failed: word not provided', 400)
+
         if not ObjectId.is_valid(e['word']):
             return Response('Failed: invalid Id', 400)
 
@@ -92,7 +96,8 @@ def add_questions(id_, r):
                 question_text=e['question_text'], word=e['word'])
             question.save()
             Quiz.objects(id=id_).update_one(push__questions=question)
-        except:
+        except Exception as e:
+            print(str(datetime.now()) + ' ' + e)
             return Response('Failed: invalid request', 400)
 
 
@@ -149,22 +154,38 @@ def delete_question(questionId):
 
     question = Question.objects.get_or_404(id=questionId)
     question.delete()
-    return Response('Success', 200)
+    return Response('Success: question has been deleted', 200)
 
 
 def grade_and_verify(list, sub):
     count = 0
     answers = []
-    num_questions = len(Quiz.objects.get(id=sub.quiz_id.id)['questions'])
+    hm = {}
+
+    # make a hash map of the question objects
+    quiz = Quiz.objects.get(id=sub.quiz_id.id)
+    for e in quiz['questions']:
+        hm[e.id] = e.word.word
+
     for i in list:
-        if ObjectId.is_valid(i['question_id']):
-            q = Question.objects.get(id=i['question_id'])
+        # check if the oids are valid and exist
+        err = Question.error_checker(i['question_id'])
+        if err:
+            return err
+
+        # check if the question is on this quiz
+        if ObjectId(i['question_id']) in hm:
             answers.append(UserAnswers(
-                question_id=i['question_id'], user_answer=i['user_answer'], correct_answer=q.word['word']))
-            if i['user_answer'] == q.word['word']:
+                question_id=i['question_id'], user_answer=i['user_answer'], correct_answer=hm[ObjectId(i['question_id'])]))
+            # check if the answer is right
+            if i['user_answer'] == hm[ObjectId(i['question_id'])]:
                 count += 1
+            del hm[ObjectId(i['question_id'])]
         else:
-            return Response('Failed: invalid question Id', 400)
+            return Response('Failed: invalid input', 400)
+
+    # grade the quiz
+    num_questions = len(quiz['questions'])
     sub.grade = (count / num_questions) * 100
     sub.user_answers = answers
     return sub
@@ -197,13 +218,38 @@ def submit_quiz():
     if not Module.objects(id=r['module_id'], quiz=r['quiz_id']):
         return Response('Failed: quiz is not a member of module', 400)
 
-    # this is all kinda nightmare fuel but it works
+    # if the module has a parent check to see if the user has completed it
+    module = Module.objects.get(id=r['module_id'])
+    if module.parent:
+        if not User.objects(id=r['user_id'], completed_modules__module_id=module.parent):
+            return Response('Failed: user has not completed the parent module', 403)
+
+    # build submission object
     sub = Submission(user_id=r['user_id'],
                      quiz_id=r['quiz_id'], module_id=r['module_id'])
+
+    # grade quiz
     sub = grade_and_verify(r['user_answers'], sub)
+
+    # check for any errors in grading the quiz
+    if isinstance(sub, Response):
+        return sub
+
+    # No errors so save the submission
     sub.save()
+
+    # update the completed modules field
     if sub.grade >= 80:
-        module = Module.objects.get(id=r['module_id'])
-        User.objects(id=r['user_id']).update(push__completed_modules=Completed_Modules(
-            module_id=module.id, module_name=module.module_name))
+        completed = True
+
+        # check if the user has completed all the quizzes for the module
+        for e in module.quiz:
+            if not Submission.objects(user_id=r['user_id'], module_id=module.id, quiz_id=e.id, grade__gte=80):
+                completed = False
+
+        # If so and the module is not already marked as complete, mark it as complete
+        if completed and not User.objects(id=r['user_id'], completed_modules__module_id=module.id):
+            User.objects(id=r['user_id']).update(push__completed_modules=Completed_Modules(
+                module_id=module.id, module_name=module.module_name))
+
     return Response(sub.to_json(), 200, mimetype='application/json')

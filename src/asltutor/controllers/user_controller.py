@@ -9,7 +9,7 @@ from passlib.hash import pbkdf2_sha256
 from flask_login import login_user
 import jwt
 from mongoengine.errors import NotUniqueError
-
+from datetime import datetime
 
 user = Blueprint('user', __name__)
 
@@ -25,18 +25,26 @@ def create_user():
 
     :rtype: None
     """
-    if request.is_json is None:
+    if request.content_type != 'application/json':
         return Response('Failed: Content-type must be application/json', 415)
 
     r = request.get_json()
-    newUser = User(**r)
+    if 'username' or 'dob' not in r:
+        return Response('Failed: invalid request', 400)
+    username = ''.join(filter(str.isalpha, r['username']))
+    if User.object(username=username):
+        return Response('Failed: username already exists', 409)
+    newUser = User(username=username, dob=r['dob'])
+    if 'firstname' in r:
+        newUser.firstname = r['firstname']
+    if 'lastname' in r:
+        newUser.lastname = r['lastname']
     try:
         newUser.save()
-    except NotUniqueError as e:
-        for field in User._fields:
-            if field in str(e):
-                return Response('Failed: field {} is already taken'.format(field), 409)
-    return Response('Success', 200)
+    except Exception as e:
+        print(str(datetime.now()) + ' ' + e)
+        return Response('Failed: invalid request', 400)
+    return Response('Success: user added', 200)
 
 
 @user.route('/user/<string:username>', methods=['POST'])
@@ -81,9 +89,8 @@ def get_user_info(username):
 
     :rtype: json
     """
-    if User.objects(username=username):
-        return Response(User.objects(username=username).to_json())
-    return Response('Failed: User not found', 404)
+    user = User.objects.get_or_404(username=username)
+    return Response(user.to_json())
 
 
 @user.route('/user/<string:username>/submissions', methods=['GET'])
@@ -111,31 +118,32 @@ def get_submissions(username):
     quizId = request.args.get('quiz', None)
     moduleId = request.args.get('module', None)
     if submissionId:
-        if ObjectId.is_valid(submissionId):
-            # submission cannot be combined with other queries
-            if not quizId and not moduleId:
-                return Response(Submission.objects.get_or_404(id=submissionId).to_json(), mimetype='application/json')
-            else:
-                return Response('Failed: Submission query cannot be combined with other queries', 400)
+        err = Submission.error_checker(submissionId)
+        if err:
+            return err
+        # submission cannot be combined with other queries
+        elif quizId or moduleId:
+            return Response('Failed: Submission query cannot be combined with other queries', 400)
+        # submission id is corrent and no other queries have been specified
         else:
-            return Response('Failed: invalid Id', 400)
+            return Response(Submission.objects.get(id=submissionId).to_json(), 200, mimetype='application/json')
 
     # if submissionId is not specified do further filtering
     user = User.objects.get_or_404(username=username)
 
-    subs = Submission.objects(user_id__exact=user.id)
+    subs = Submission.objects(user_id=user.id)
     if moduleId:
-        if ObjectId.is_valid(moduleId):
-            subs = subs.filter(module_id__exact=moduleId)
-        else:
-            return Response('Failed: invalid Id', 400)
+        err = Module.error_checker(moduleId)
+        if err:
+            return Response(err)
+        subs = subs.filter(module_id=moduleId)
 
     if quizId:
-        if ObjectId.is_valid(quizId):
-            subs = Submission.objects(quiz_id__exact=quizId)
-        else:
-            return Response('Failed: invalid Id', 400)
+        err = Module.error_checker(quizId)
+        if err:
+            return Response(err)
+        subs = Submission.objects(quiz_id=quizId)
 
     if subs:
-        return Response(subs.to_json(), mimetype='application/json')
-    return Response('Failed: No submission found for that query')
+        return Response(subs.order_by('-grade').to_json(), 200, mimetype='application/json')
+    return Response('No content', 204)

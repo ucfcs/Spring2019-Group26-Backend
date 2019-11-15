@@ -7,6 +7,7 @@ from flask import request, Response
 from bson import ObjectId
 from asltutor import s3_helper
 from werkzeug import secure_filename
+from datetime import datetime
 
 admin = Blueprint('admin', __name__)
 
@@ -92,7 +93,6 @@ def get_submissions():
 
     if submissionId:
         err = Submission.error_checker(submissionId)
-        # if submission id is wrong throw error
         if err:
             return err
          # submission cannot be combined with other queries
@@ -101,32 +101,32 @@ def get_submissions():
         # submission id is corrent and no other queries have been specified
         else:
             return Response(Submission.objects.get(id=submissionId).to_json(), mimetype='application/json')
-    else:
-        # if submissionId is not specified do further filtering
-        subs = Submission.objects()
-        if not username and not quizId and not moduleId:
-            return Response('Failed: specify at least one filter to view submissions', 412)
 
-        if username:
-            if User.objects(username=username):
-                user = User.objects.get(username=username)
-                subs = subs.filter(user_id__exact=user.id)
+    # if submissionId is not specified do further filtering
+    subs = Submission.objects()
+    if not username and not quizId and not moduleId:
+        return Response('Failed: specify at least one filter to view submissions', 412)
 
-        if moduleId:
-            err = Module.error_checker(moduleId)
-            if err:
-                return Response(err)
-            subs = subs.filter(module_id__exact=moduleId)
+    if username:
+        if User.objects(username=username):
+            user = User.objects.get(username=username)
+            subs = subs.filter(user_id=user.id)
 
-        if quizId:
-            err = Module.error_checker(quizId)
-            if err:
-                return Response(err)
-            subs = Submission.objects(quiz_id__exact=quizId)
+    if moduleId:
+        err = Module.error_checker(moduleId)
+        if err:
+            return Response(err)
+        subs = subs.filter(module_id=moduleId)
 
-        if subs:
-            return Response(subs.to_json(), mimetype='application/json')
-    return Response('Failed: No submission found for that query', 204)
+    if quizId:
+        err = Module.error_checker(quizId)
+        if err:
+            return Response(err)
+        subs = Submission.objects(quiz_id=quizId)
+
+    if subs:
+        return Response(subs.order_by('-grade').to_json(), 200, mimetype='application/json')
+    return Response('No content', 204)
 
 
 @admin.route('/admin/dictionary', methods=['GET'])
@@ -147,7 +147,7 @@ def list_words():
     start = request.args.get('start', None)
     if start:
         start = int(start)
-        if start >= Dictionary.objects(in_dictionary=False, url__ne=None).count():
+        if start >= Dictionary.objects(in_dictionary=False, url__exists=1).count():
             start = 0
     else:
         start = 0
@@ -160,7 +160,7 @@ def list_words():
     else:
         limit = 20
 
-    return Response(Dictionary.objects(in_dictionary=False, url__ne=None)[start:limit].to_json(), 200, mimetype='application/json')
+    return Response(Dictionary.objects(in_dictionary=False, url__exists=1).order_by('-word')[start:limit].to_json(), 200, mimetype='application/json')
 
 
 @admin.route('/admin/dictionary', methods=['POST'])
@@ -187,6 +187,40 @@ def approve_word():
         Dictionary.objects(word=e).update(in_dictionary=True)
 
     return Response('Success, updated the dictionary', 200)
+
+
+@admin.route('/admin/dictionary/delete', methods=['POST'])
+def deny_word():
+    """Deny words, remove the file from the S3 bucket and not the DB
+
+    Deletes the specified word from the S3 bucket and removes the URL field for that word
+
+    request body
+
+    :rtype: None
+    """
+    if request.content_type != 'application/json':
+        return Response('Failed: Content-type must be application/json', 415)
+
+    r = request.get_json()
+    if 'word' not in r:
+        return Response('Failed: invalid request', 400)
+
+    if len(r['word']) == 0:
+        return Response('Failed: no words provided', 400)
+
+    for e in r['word']:
+        if Dictionary.objects(word=e):
+            try:
+                word = Dictionary.objects.get(word=e)
+                url = word.url
+                word.update(unset__url=1)
+                url = url.split('/')
+                s3_helper.delete_file_from_s3(url[-1])
+            except Exception as e:
+                print(str(datetime.now()) + ' ' + e)
+                return Response('Failed: error deleting word', 501)
+    return Response('Success: words deleted', 200)
 
 
 @admin.route('/admin/dictionary/create', methods=['POST'])
@@ -221,9 +255,14 @@ def add_word():
         if w.check(word):
             try:
                 output = s3_helper.upload_file_to_s3(file)
-                Dictionary(word=word, url=output, in_dictionary=True).save()
+                if Dictionary.objects(word=word):
+                    Dictionary.objects(word=word).update_one(
+                        url=output, in_dictionary=True)
+                else:
+                    Dictionary(word=word, url=output,
+                               in_dictionary=True).save()
             except Exception as e:
-                print(e)
+                print(str(datetime.now()) + ' ' + e)
                 return Response('Failed: error uploading word', 501)
         else:
             return Response('Failed: word provided is not a vaild english word', 400)

@@ -21,8 +21,10 @@ paths:
       responses:
         '200':
           description: 'Success: user registered'
+        '400':
+          description: 'Failed: invalid request'
         '409':
-          description: 'Failed: field is already taken'
+          description: 'Failed: username already exists'
   '/user/{username}/submissions':
     get:
       tags:
@@ -289,6 +291,35 @@ paths:
           description: 'Failed: error uploading word'
         '400':
           description: 'Failed: word provided is not a vaild english word/Missing file'
+        '409':
+          description: 'Failed: Word has already been requested or already exists'
+
+  /admin/dictionary/delete:
+    post:
+      tags:
+        - admin
+      summary: Deny words, remove the file from the S3 bucket and not the DB
+      description: Deletes the specified word from the S3 bucket and removes the URL field for that word
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Object containing a list of words
+              type: object
+              properties:
+                word:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: 'Success: words deleted'
+        '400':
+          description: 'Failed: invalid request'
+        '415':
+          description: 'Failed: Content-type must be application/json'
+        '501':
+          description: 'Failed: error deleting word'
 
   /dictionary:
     get:
@@ -462,12 +493,12 @@ paths:
       responses:
         '200':
           description: 'Success: word added to module'
+        '204':
+          description: 'No content'
         '400':
           description: 'Failed: invalid Id'
         '415':
           description: 'Failed: Content-type must be application/json'
-        '404':
-          description: 'Failed: word or module not found'
   '/module/delete/id/{moduleId}':
     post:
       tags:
@@ -704,8 +735,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetSubmission'
+        '204':
+          description: 'No content'
         '400':
-          description: 'Failed: invalid Id(s)'
+          description: 'Failed: invalid Id'
+        '403':
+          description: 'Failed: user has not completed the parent module'
         '415':
           description: 'Failed: Content-type must be application/json'
 components:
