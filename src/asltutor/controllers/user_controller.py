@@ -29,20 +29,26 @@ def create_user():
         return Response('Failed: Content-type must be application/json', 415)
 
     r = request.get_json()
-    if 'username' or 'dob' not in r:
-        return Response('Failed: invalid request', 400)
+    # kind of a lot of if statements but I feel like this is more consistent
+    # and gives more useful debugging information that just default invalid request
+    if 'username' not in r:
+        return Response('Failed: Please provide a username', 400)
     username = ''.join(filter(str.isalpha, r['username']))
-    if User.object(username=username):
+    if 'dob' not in r:
+        return Response('Failed: Please provide a dob', 400)
+    if User.objects(username=username):
         return Response('Failed: username already exists', 409)
     newUser = User(username=username, dob=r['dob'])
-    if 'firstname' in r:
-        newUser.firstname = r['firstname']
-    if 'lastname' in r:
-        newUser.lastname = r['lastname']
+    if 'firstname' not in r:
+        return Response('Failed: Please provide a firstname', 400)
+    newUser.firstname = r['firstname']
+    if 'lastname' not in r:
+        return Response('Failed: please provide a lastname', 400)
+    newUser.lastname = r['lastname']
     try:
         newUser.save()
     except Exception as e:
-        print(str(datetime.now()) + ' ' + e)
+        print(str(datetime.now()) + ' ' , e)
         return Response('Failed: invalid request', 400)
     return Response('Success: user added', 200)
 
