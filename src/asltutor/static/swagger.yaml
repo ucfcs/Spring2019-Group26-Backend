@@ -777,7 +777,7 @@ components:
           type: string
         lastname:
           type: string
-        DOB:
+        dob:
           type: string
           format: date
       required:
@@ -786,7 +786,7 @@ components:
       example:
         firstname: Jon
         lastname: Wick
-        DOB: '1964-09-02'
+        dob: '1964-09-02'
         username: baba_yaga
     PostDictionary:
       description: Word object
