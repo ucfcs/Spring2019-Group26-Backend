@@ -213,6 +213,8 @@ def deny_word():
         if Dictionary.objects(word=e):
             try:
                 word = Dictionary.objects.get(word=e)
+                if word.url == None:
+                    return Response('Failed: word has no url field', 400)
                 url = word.url
                 word.update(unset__url=1)
                 url = url.split('/')
