@@ -51,7 +51,7 @@ def add_word():
                     else:
                         Dictionary(word=word, url=output).save()
                 except Exception as e:
-                    print(str(datetime.now()) + ' ' + e)
+                    print(str(datetime.now()) + ' ', e)
                     return Response('Failed: error uploading word', 501)
         else:
             return Response('Failed: word provided is not a vaild english word', 400)
@@ -83,7 +83,7 @@ def delete_word():
             s3_helper.delete_file_from_s3(url[-1])
             Dictionary.objects(word=input_).delete()
         except Exception as e:
-            print(str(datetime.now()) + ' ' + e)
+            print(str(datetime.now()) + ' ', e)
             return Response('Failed: error deleting word', 501)
         return Response('Success: word deleted from the dictionary', 200)
     return Response('Word not found', 204)
