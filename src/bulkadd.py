@@ -384,10 +384,15 @@ def addall():
     they.save()
     question_they = Question(question_text='What does this sign mean?', word=they)
     question_they.save()
+    name = Dictionary(
+        word='name', url='https://animations.theasltutor.com.s3.amazonaws.com/name.mp4', in_dictionary='True')
+    name.save()
+    question_name = Question(question_text='What does this sign mean?', word=name)
+    question_name.save()
 
-    quiz_nouns = Quiz(quiz_name='Quiz Nouns', details='You will be quizzed on what you learned in the nouns module', questions=[question_i,question_me,question_you,question_we,question_man,question_woman,question_he,question_she,question_it,question_they])
+    quiz_nouns = Quiz(quiz_name='Quiz Nouns', details='You will be quizzed on what you learned in the nouns module', questions=[question_i,question_me,question_you,question_we,question_man,question_woman,question_he,question_she,question_it,question_they,question_name])
     quiz_nouns.save()
-    module_nouns = Module(module_name='Nouns', details='In this module you will learn the nouns used to describe people', words=[i,me,you,we,man,woman,he,she,it,they], quiz=[quiz_nouns], parent=module_food.id)
+    module_nouns = Module(module_name='Nouns', details='In this module you will learn the nouns used to describe people', words=[i,me,you,we,man,woman,he,she,it,they,name], quiz=[quiz_nouns], parent=module_food.id)
     module_nouns.save()
 
     # verbs
