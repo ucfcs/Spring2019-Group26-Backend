@@ -218,7 +218,7 @@ def deny_word():
                 url = url.split('/')
                 s3_helper.delete_file_from_s3(url[-1])
             except Exception as e:
-                print(str(datetime.now()) + ' ' + e)
+                print(str(datetime.now()) + ' ', e)
                 return Response('Failed: error deleting word', 501)
     return Response('Success: words deleted', 200)
 
@@ -262,7 +262,7 @@ def add_word():
                     Dictionary(word=word, url=output,
                                in_dictionary=True).save()
             except Exception as e:
-                print(str(datetime.now()) + ' ' + e)
+                print(str(datetime.now()) + ' ', e)
                 return Response('Failed: error uploading word', 501)
         else:
             return Response('Failed: word provided is not a vaild english word', 400)
