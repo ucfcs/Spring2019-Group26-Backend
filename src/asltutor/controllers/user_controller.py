@@ -48,7 +48,7 @@ def create_user():
     try:
         newUser.save()
     except Exception as e:
-        print(str(datetime.now()) + ' ' , e)
+        print(str(datetime.now()) + ' ', e)
         return Response('Failed: invalid request', 400)
     return Response('Success: user added', 200)
 

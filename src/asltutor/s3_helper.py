@@ -29,7 +29,7 @@ def upload_file_to_s3(file):
             }
         )
     except Exception as e:
-        print(str(datetime.now()) + ' ' + e)
+        print(str(datetime.now()) + ' ', e)
         return e
 
     return "{}{}".format(S3_LOCATION, file.filename)
@@ -46,5 +46,5 @@ def delete_file_from_s3(word):
             Key=word
         )
     except Exception as e:
-        print(str(datetime.now()) + ' ' + e)
+        print(str(datetime.now()) + ' ', e)
         return e
