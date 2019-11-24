@@ -6,176 +6,110 @@ from asltutor.models.quiz import Quiz, Question
 from asltutor.models.dictionary import Dictionary
 
 def addall():
-    a = Dictionary(
-        word='a', url='https://animations.theasltutor.com.s3.amazonaws.com/a.mp4', in_dictionary='True')
-    a.save()
+    a = Dictionary.object.get(word='a')
     question_a = Question(question_text='What does this sign mean?', word=a)
     question_a.save()
-    b = Dictionary(
-        word='b', url='https://animations.theasltutor.com.s3.amazonaws.com/b.mp4', in_dictionary='True')
-    b.save()
+    b = Dictionary.object.get(word='b')
     question_b = Question(question_text='What does this sign mean?', word=b)
     question_b.save()
-    c = Dictionary(
-        word='c', url='https://animations.theasltutor.com.s3.amazonaws.com/c.mp4', in_dictionary='True')
-    c.save()
+    c = Dictionary.object.get(word='c')
     question_c = Question(question_text='What does this sign mean?', word=c)
     question_c.save()
-    d = Dictionary(
-        word='d', url='https://animations.theasltutor.com.s3.amazonaws.com/d.mp4', in_dictionary='True')
-    d.save()
+    d = Dictionary.object.get(word='d')
     question_d = Question(question_text='What does this sign mean?', word=d)
     question_d.save()
-    e = Dictionary(
-        word='e', url='https://animations.theasltutor.com.s3.amazonaws.com/e.mp4', in_dictionary='True')
-    e.save()
+    e = Dictionary.object.get(word='e')
     question_e = Question(question_text='What does this sign mean?', word=e)
     question_e.save()
-    f = Dictionary(
-        word='f', url='https://animations.theasltutor.com.s3.amazonaws.com/f.mp4', in_dictionary='True')
-    f.save()
+    f = Dictionary.object.get(word='f')
     question_f = Question(question_text='What does this sign mean?', word=f)
     question_f.save()
-    g = Dictionary(
-        word='g', url='https://animations.theasltutor.com.s3.amazonaws.com/g.mp4', in_dictionary='True')
-    g.save()
+    g = Dictionary.object.get(word='g')
     question_g = Question(question_text='What does this sign mean?', word=g)
     question_g.save()
-    h = Dictionary(
-        word='h', url='https://animations.theasltutor.com.s3.amazonaws.com/h.mp4', in_dictionary='True')
-    h.save()
+    h = Dictionary.object.get(word='h')
     question_h = Question(question_text='What does this sign mean?', word=h)
     question_h.save()
-    i = Dictionary(
-        word='i', url='https://animations.theasltutor.com.s3.amazonaws.com/i.mp4', in_dictionary='True')
-    i.save()
+    i = Dictionary.object.get(word='i')
     question_i = Question(question_text='What does this sign mean?', word=i)
     question_i.save()
-    j = Dictionary(
-        word='j', url='https://animations.theasltutor.com.s3.amazonaws.com/j.mp4', in_dictionary='True')
-    j.save()
+    j = Dictionary.object.get(word='j')
     question_j = Question(question_text='What does this sign mean?', word=j)
     question_j.save()
-    k = Dictionary(
-        word='k', url='https://animations.theasltutor.com.s3.amazonaws.com/k.mp4', in_dictionary='True')
-    k.save()
+    k = Dictionary.object.get(word='k')
     question_k = Question(question_text='What does this sign mean?', word=k)
     question_k.save()
-    l = Dictionary(
-        word='l', url='https://animations.theasltutor.com.s3.amazonaws.com/l.mp4', in_dictionary='True')
-    l.save()
+    l = Dictionary.object.get(word='l')
     question_l = Question(question_text='What does this sign mean?', word=l)
     question_l.save()
-    m = Dictionary(
-        word='m', url='https://animations.theasltutor.com.s3.amazonaws.com/m.mp4', in_dictionary='True')
-    m.save()
+    m = Dictionary.object.get(word='m')
     question_m = Question(question_text='What does this sign mean?', word=m)
     question_m.save()
-    o = Dictionary(
-        word='o', url='https://animations.theasltutor.com.s3.amazonaws.com/o.mp4', in_dictionary='True')
-    o.save()
+    o = Dictionary.object.get(word='o')
     question_o = Question(question_text='What does this sign mean?', word=o)
     question_o.save()
-    p = Dictionary(
-        word='p', url='https://animations.theasltutor.com.s3.amazonaws.com/p.mp4', in_dictionary='True')
-    p.save()
+    p = Dictionary.object.get(word='p')
     question_p = Question(question_text='What does this sign mean?', word=p)
     question_p.save()
-    q = Dictionary(
-        word='q', url='https://animations.theasltutor.com.s3.amazonaws.com/q.mp4', in_dictionary='True')
-    q.save()
+    q = Dictionary.object.get(word='q')
     question_q = Question(question_text='What does this sign mean?', word=q)
     question_q.save()
-    r = Dictionary(
-        word='r', url='https://animations.theasltutor.com.s3.amazonaws.com/r.mp4', in_dictionary='True')
-    r.save()
+    r = Dictionary.object.get(word='r')
     question_r = Question(question_text='What does this sign mean?', word=r)
     question_r.save()
-    s = Dictionary(
-        word='s', url='https://animations.theasltutor.com.s3.amazonaws.com/s.mp4', in_dictionary='True')
-    s.save()
+    s = Dictionary.object.get(word='s')
     question_s = Question(question_text='What does this sign mean?', word=s)
     question_s.save()
-    t = Dictionary(
-        word='t', url='https://animations.theasltutor.com.s3.amazonaws.com/t.mp4', in_dictionary='True')
-    t.save()
+    t = Dictionary.object.get(word='t')
     question_t = Question(question_text='What does this sign mean?', word=t)
     question_t.save()
-    u = Dictionary(
-        word='u', url='https://animations.theasltutor.com.s3.amazonaws.com/u.mp4', in_dictionary='True')
-    u.save()
+    u = Dictionary.object.get(word='u')
     question_u = Question(question_text='What does this sign mean?', word=u)
     question_u.save()
-    v = Dictionary(
-        word='v', url='https://animations.theasltutor.com.s3.amazonaws.com/v.mp4', in_dictionary='True')
-    v.save()
+    v = Dictionary.object.get(word='v')
     question_v = Question(question_text='What does this sign mean?', word=v)
     question_v.save()
-    w = Dictionary(
-        word='w', url='https://animations.theasltutor.com.s3.amazonaws.com/w.mp4', in_dictionary='True')
-    w.save()
+    w = Dictionary.object.get(word='w')
     question_w = Question(question_text='What does this sign mean?', word=w)
     question_w.save()
-    x = Dictionary(
-        word='x', url='https://animations.theasltutor.com.s3.amazonaws.com/x.mp4', in_dictionary='True')
-    x.save()
+    x = Dictionary.object.get(word='x')
     question_x = Question(question_text='What does this sign mean?', word=x)
     question_x.save()
-    y = Dictionary(
-        word='y', url='https://animations.theasltutor.com.s3.amazonaws.com/y.mp4', in_dictionary='True')
-    y.save()
+    y = Dictionary.object.get(word='y')
     question_y = Question(question_text='What does this sign mean?', word=y)
     question_y.save()
-    z = Dictionary(
-        word='z', url='https://animations.theasltutor.com.s3.amazonaws.com/z.mp4', in_dictionary='True')
-    z.save()
+    z = Dictionary.object.get(word='z')
     question_z = Question(question_text='What does this sign mean?', word=z)
     question_z.save()
 
     # places
-    house = Dictionary(
-        word='house', url='https://animations.theasltutor.com.s3.amazonaws.com/house.mp4', in_dictionary='True')
-    house.save()
+    house = Dictionary.object.get(word='house')
     question_house = Question(
         question_text='What does this sign mean?', word=house)
     question_house.save()
-    museum = Dictionary(
-        word='museum', url='https://animations.theasltutor.com.s3.amazonaws.com/museum.mp4', in_dictionary='True')
-    museum.save()
+    museum = Dictionary.object.get(word='museum')
     question_museum = Question(
         question_text='What does this sign mean?', word=museum)
     question_museum.save()
-    restaurant = Dictionary(
-        word='restaurant', url='https://animations.theasltutor.com.s3.amazonaws.com/restaurant.mp4', in_dictionary='True')
-    restaurant.save()
+    restaurant = Dictionary.object.get(word='restaurant')
     question_restaurant = Question(
         question_text='What does this sign mean?', word=restaurant)
     question_restaurant.save()
-    city = Dictionary(
-        word='city', url='https://animations.theasltutor.com.s3.amazonaws.com/city.mp4', in_dictionary='True')
-    city.save()
+    city = Dictionary.object.get(word='city')
     question_city = Question(question_text='What does this sign mean?', word=city)
     question_city.save()
-    restroom = Dictionary(
-        word='restroom', url='https://animations.theasltutor.com.s3.amazonaws.com/restroom.mp4', in_dictionary='True')
-    restroom.save()
+    restroom = Dictionary.object.get(word='restroom')
     question_restroom = Question(
         question_text='What does this sign mean?', word=restroom)
     question_restroom.save()
-    store = Dictionary(
-        word='store', url='https://animations.theasltutor.com.s3.amazonaws.com/store.mp4', in_dictionary='True')
-    store.save()
+    store = Dictionary.object.get(word='store')
     question_store = Question(
         question_text='What does this sign mean?', word=store)
     question_store.save()
-    park = Dictionary(
-        word='park', url='https://animations.theasltutor.com.s3.amazonaws.com/park.mp4', in_dictionary='True')
-    park.save()
+    park = Dictionary.object.get(word='park')
     question_park = Question(question_text='What does this sign mean?', word=park)
     question_park.save()
-    kitchen = Dictionary(
-        word='kitchen', url='https://animations.theasltutor.com.s3.amazonaws.com/kitchen.mp4', in_dictionary='True')
-    kitchen.save()
+    kitchen = Dictionary.object.get(word='kitchen')
     question_kitchen = Question(
         question_text='What does this sign mean?', word=kitchen)
     question_kitchen.save()
@@ -186,80 +120,52 @@ def addall():
     module_places.save()
 
     # Directions
-    where = Dictionary(
-        word='where', url='https://animations.theasltutor.com.s3.amazonaws.com/where.mp4', in_dictionary='True')
-    where.save()
+    where = Dictionary.object.get(word='where')
     question_where = Question(
         question_text='What does this sign mean?', word=where)
     question_where.save()
-    go = Dictionary(
-        word='go', url='https://animations.theasltutor.com.s3.amazonaws.com/go.mp4', in_dictionary='True')
-    go.save()
+    go = Dictionary.object.get(word='go')
     question_go = Question(question_text='What does this sign mean?', word=go)
     question_go.save()
-    which = Dictionary(
-        word='which', url='https://animations.theasltutor.com.s3.amazonaws.com/which.mp4', in_dictionary='True')
-    which.save()
+    which = Dictionary.object.get(word='which')
     question_which = Question(
         question_text='What does this sign mean?', word=which)
     question_which.save()
-    way = Dictionary(
-        word='way', url='https://animations.theasltutor.com.s3.amazonaws.com/way.mp4', in_dictionary='True')
-    way.save()
+    way = Dictionary.object.get(word='way')
     question_way = Question(question_text='What does this sign mean?', word=way)
     question_way.save()
-    north = Dictionary(
-        word='north', url='https://animations.theasltutor.com.s3.amazonaws.com/north.mp4', in_dictionary='True')
-    north.save()
+    north = Dictionary.object.get(word='north')
     question_north = Question(
         question_text='What does this sign mean?', word=north)
     question_north.save()
-    south = Dictionary(
-        word='south', url='https://animations.theasltutor.com.s3.amazonaws.com/south.mp4', in_dictionary='True')
-    south.save()
+    south = Dictionary.object.get(word='south')
     question_south = Question(
         question_text='What does this sign mean?', word=south)
     question_south.save()
-    east = Dictionary(
-        word='east', url='https://animations.theasltutor.com.s3.amazonaws.com/east.mp4', in_dictionary='True')
-    east.save()
+    east = Dictionary.object.get(word='east')
     question_east = Question(question_text='What does this sign mean?', word=east)
     question_east.save()
-    west = Dictionary(
-        word='west', url='https://animations.theasltutor.com.s3.amazonaws.com/west.mp4', in_dictionary='True')
-    west.save()
+    west = Dictionary.object.get(word='west')
     question_west = Question(question_text='What does this sign mean?', word=west)
     question_west.save()
-    here = Dictionary(
-        word='here', url='https://animations.theasltutor.com.s3.amazonaws.com/here.mp4', in_dictionary='True')
-    here.save()
+    here = Dictionary.object.get(word='here')
     question_here = Question(question_text='What does this sign mean?', word=here)
     question_here.save()
-    there = Dictionary(
-        word='there', url='https://animations.theasltutor.com.s3.amazonaws.com/there.mp4', in_dictionary='True')
-    there.save()
+    there = Dictionary.object.get(word='there')
     question_there = Question(
         question_text='What does this sign mean?', word=there)
     question_there.save()
-    turn = Dictionary(
-        word='turn', url='https://animations.theasltutor.com.s3.amazonaws.com/turn.mp4', in_dictionary='True')
-    turn.save()
+    turn = Dictionary.object.get(word='turn')
     question_turn = Question(question_text='What does this sign mean?', word=turn)
     question_turn.save()
-    left = Dictionary(
-        word='left', url='https://animations.theasltutor.com.s3.amazonaws.com/left.mp4', in_dictionary='True')
-    left.save()
+    left = Dictionary.object.get(word='left')
     question_left = Question(question_text='What does this sign mean?', word=left)
     question_left.save()
-    right = Dictionary(
-        word='right', url='https://animations.theasltutor.com.s3.amazonaws.com/right.mp4', in_dictionary='True')
-    right.save()
+    right = Dictionary.object.get(word='right')
     question_right = Question(
         question_text='What does this sign mean?', word=right)
     question_right.save()
-    straight = Dictionary(
-        word='straight', url='https://animations.theasltutor.com.s3.amazonaws.com/straight.mp4', in_dictionary='True')
-    straight.save()
+    straight = Dictionary.object.get(word='straight')
     question_straight = Question(
         question_text='What does this sign mean?', word=straight)
     question_straight.save()
@@ -271,61 +177,41 @@ def addall():
     module_directions.save()
 
     # Food
-    hungry = Dictionary(
-        word='hungry', url='https://animations.theasltutor.com.s3.amazonaws.com/hungry.mp4', in_dictionary='True')
-    hungry.save()
+    hungry = Dictionary.object.get(word='hungry')
     question_hungry = Question(
         question_text='What does this sign mean?', word=hungry)
     question_hungry.save()
-    thirsty = Dictionary(
-        word='thirsty', url='https://animations.theasltutor.com.s3.amazonaws.com/thirsty.mp4', in_dictionary='True')
-    thirsty.save()
+    thirsty = Dictionary.object.get(word='thirsty')
     question_thirsty = Question(
         question_text='What does this sign mean?', word=thirsty)
     question_thirsty.save()
-    eat = Dictionary(
-        word='eat', url='https://animations.theasltutor.com.s3.amazonaws.com/eat.mp4', in_dictionary='True')
-    eat.save()
+    eat = Dictionary.object.get(word='eat')
     question_eat = Question(question_text='What does this sign mean?', word=eat)
     question_eat.save()
-    drink = Dictionary(
-        word='drink', url='https://animations.theasltutor.com.s3.amazonaws.com/drink.mp4', in_dictionary='True')
-    drink.save()
+    drink = Dictionary.object.get(word='drink')
     question_drink = Question(
         question_text='What does this sign mean?', word=drink)
     question_drink.save()
-    breakfast = Dictionary(
-        word='breakfast', url='https://animations.theasltutor.com.s3.amazonaws.com/breakfast.mp4', in_dictionary='True')
-    breakfast.save()
+    breakfast = Dictionary.object.get(word='breakfast')
     question_breakfast = Question(
         question_text='What does this sign mean?', word=breakfast)
     question_breakfast.save()
-    lunch = Dictionary(
-        word='lunch', url='https://animations.theasltutor.com.s3.amazonaws.com/lunch.mp4', in_dictionary='True')
-    lunch.save()
+    lunch = Dictionary.object.get(word='lunch')
     question_lunch = Question(
         question_text='What does this sign mean?', word=lunch)
     question_lunch.save()
-    dinner = Dictionary(
-        word='dinner', url='https://animations.theasltutor.com.s3.amazonaws.com/dinner.mp4', in_dictionary='True')
-    dinner.save()
+    dinner = Dictionary.object.get(word='dinner')
     question_dinner = Question(
         question_text='What does this sign mean?', word=dinner)
     question_dinner.save()
-    coffee = Dictionary(
-        word='coffee', url='https://animations.theasltutor.com.s3.amazonaws.com/coffee.mp4', in_dictionary='True')
-    coffee.save()
+    coffee = Dictionary.object.get(word='coffee')
     question_coffee = Question(
         question_text='What does this sign mean?', word=coffee)
     question_coffee.save()
-    meat = Dictionary(
-        word='meat', url='https://animations.theasltutor.com.s3.amazonaws.com/meat.mp4', in_dictionary='True')
-    meat.save()
+    meat = Dictionary.object.get(word='meat')
     question_meat = Question(question_text='What does this sign mean?', word=meat)
     question_meat.save()
-    vegetables = Dictionary(
-        word='vegetables', url='https://animations.theasltutor.com.s3.amazonaws.com/vegetables.mp4', in_dictionary='True')
-    vegetables.save()
+    vegetables = Dictionary.object.get(word='vegetables')
     question_vegetables = Question(
         question_text='What does this sign mean?', word=vegetables)
     question_vegetables.save()
@@ -338,55 +224,35 @@ def addall():
     # Nouns
     question_i = Question(question_text='What does this sign mean?', word=i)
     question_i.save()
-    me = Dictionary(
-        word='me', url='https://animations.theasltutor.com.s3.amazonaws.com/me.mp4', in_dictionary='True')
-    me.save()
+    me = Dictionary.object.get(word='me')
     question_me = Question(question_text='What does this sign mean?', word=me)
     question_me.save()
-    you = Dictionary(
-        word='you', url='https://animations.theasltutor.com.s3.amazonaws.com/you.mp4', in_dictionary='True')
-    you.save()
+    you = Dictionary.object.get(word='you')
     question_you = Question(question_text='What does this sign mean?', word=you)
     question_you.save()
-    we = Dictionary(
-        word='we', url='https://animations.theasltutor.com.s3.amazonaws.com/we.mp4', in_dictionary='True')
-    we.save()
+    we = Dictionary.object.get(word='we')
     question_we = Question(question_text='What does this sign mean?', word=we)
     question_we.save()
-    man = Dictionary(
-        word='man', url='https://animations.theasltutor.com.s3.amazonaws.com/man.mp4', in_dictionary='True')
-    man.save()
+    man = Dictionary.object.get(word='man')
     question_man = Question(question_text='What does this sign mean?', word=man)
     question_man.save()
-    woman = Dictionary(
-        word='woman', url='https://animations.theasltutor.com.s3.amazonaws.com/woman.mp4', in_dictionary='True')
-    woman.save()
+    woman = Dictionary.object.get(word='woman')
     question_woman = Question(
         question_text='What does this sign mean?', word=woman)
     question_woman.save()
-    he = Dictionary(
-        word='he', url='https://animations.theasltutor.com.s3.amazonaws.com/he.mp4', in_dictionary='True')
-    he.save()
+    he = Dictionary.object.get(word='he')
     question_he = Question(question_text='What does this sign mean?', word=he)
     question_he.save()
-    she = Dictionary(
-        word='she', url='https://animations.theasltutor.com.s3.amazonaws.com/she.mp4', in_dictionary='True')
-    she.save()
+    she = Dictionary.object.get(word='she')
     question_she = Question(question_text='What does this sign mean?', word=she)
     question_she.save()
-    it = Dictionary(
-        word='it', url='https://animations.theasltutor.com.s3.amazonaws.com/it.mp4', in_dictionary='True')
-    it.save()
+    it = Dictionary.object.get(word='it')
     question_it = Question(question_text='What does this sign mean?', word=it)
     question_it.save()
-    they = Dictionary(
-        word='they', url='https://animations.theasltutor.com.s3.amazonaws.com/they.mp4', in_dictionary='True')
-    they.save()
+    they = Dictionary.object.get(word='they')
     question_they = Question(question_text='What does this sign mean?', word=they)
     question_they.save()
-    name = Dictionary(
-        word='name', url='https://animations.theasltutor.com.s3.amazonaws.com/name.mp4', in_dictionary='True')
-    name.save()
+    name = Dictionary.object.get(word='name')
     question_name = Question(question_text='What does this sign mean?', word=name)
     question_name.save()
 
@@ -396,44 +262,28 @@ def addall():
     module_nouns.save()
 
     # verbs
-    need = Dictionary(
-        word='need', url='https://animations.theasltutor.com.s3.amazonaws.com/need.mp4', in_dictionary='True')
-    need.save()
+    need = Dictionary.object.get(word='need')
     question_need = Question(question_text='What does this sign mean?', word=need)
     question_need.save()
-    take = Dictionary(
-        word='take', url='https://animations.theasltutor.com.s3.amazonaws.com/take.mp4', in_dictionary='True')
-    take.save()
+    take = Dictionary.object.get(word='take')
     question_take = Question(question_text='What does this sign mean?', word=take)
     question_take.save()
-    have = Dictionary(
-        word='have', url='https://animations.theasltutor.com.s3.amazonaws.com/have.mp4', in_dictionary='True')
-    have.save()
+    have = Dictionary.object.get(word='have')
     question_have = Question(question_text='What does this sign mean?', word=have)
     question_have.save()
-    buy = Dictionary(
-        word='buy', url='https://animations.theasltutor.com.s3.amazonaws.com/buy.mp4', in_dictionary='True')
-    buy.save()
+    buy = Dictionary.object.get(word='buy')
     question_buy = Question(question_text='What does this sign mean?', word=buy)
     question_buy.save()
-    like = Dictionary(
-        word='like', url='https://animations.theasltutor.com.s3.amazonaws.com/like.mp4', in_dictionary='True')
-    like.save()
+    like = Dictionary.object.get(word='like')
     question_like = Question(question_text='What does this sign mean?', word=like)
     question_like.save()
-    love = Dictionary(
-        word='love', url='https://animations.theasltutor.com.s3.amazonaws.com/love.mp4', in_dictionary='True')
-    love.save()
+    love = Dictionary.object.get(word='love')
     question_love = Question(question_text='What does this sign mean?', word=love)
     question_love.save()
-    hurt = Dictionary(
-        word='hurt', url='https://animations.theasltutor.com.s3.amazonaws.com/hurt.mp4', in_dictionary='True')
-    hurt.save()
+    hurt = Dictionary.object.get(word='hurt')
     question_hurt = Question(question_text='What does this sign mean?', word=hurt)
     question_hurt.save()
-    hate = Dictionary(
-        word='hate', url='https://animations.theasltutor.com.s3.amazonaws.com/hate.mp4', in_dictionary='True')
-    hate.save()
+    hate = Dictionary.object.get(word='hate')
     question_hate = Question(question_text='What does this sign mean?', word=hate)
     question_hate.save()
 
