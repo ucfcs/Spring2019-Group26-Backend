@@ -10,7 +10,7 @@ s3 = boto3.client(
     aws_secret_access_key=app.config['S3_SECRET_ACCESS_KEY']
 )
 
-S3_LOCATION = 'https://{}.s3.amazonaws.com/'.format(app.config['S3_BUCKET'])
+S3_LOCATION = 'https://s3.amazonaws.com/{}/'.format(app.config['S3_BUCKET'])
 
 
 def upload_file_to_s3(file):
