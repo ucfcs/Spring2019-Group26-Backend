@@ -5,6 +5,7 @@ from asltutor.models.user import User
 from flask import Blueprint
 from flask import request, Response
 from bson import ObjectId
+import enchant
 from asltutor import s3_helper
 from werkzeug import secure_filename
 from datetime import datetime
@@ -233,7 +234,6 @@ def add_word():
 
     path parameter: /admin/dictionary/create
     request body
-
     :rtype: None
     """
     if 'file' not in request.files:
