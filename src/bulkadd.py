@@ -211,10 +211,10 @@ def addall():
     meat = Dictionary.object.get(word='meat')
     question_meat = Question(question_text='What does this sign mean?', word=meat)
     question_meat.save()
-    vegetables = Dictionary.object.get(word='vegetables')
-    question_vegetables = Question(
-        question_text='What does this sign mean?', word=vegetables)
-    question_vegetables.save()
+    vegetable = Dictionary.object.get(word='vegetable')
+    question_vegetable = Question(
+        question_text='What does this sign mean?', word=vegetable)
+    question_vegetable.save()
 
     quiz_food = Quiz(quiz_name='Food Quiz', details='You will be quizzed on what you learned in the food module', questions=[question_hungry,question_thirsty,question_eat,question_drink,question_eat,question_breakfast,question_lunch,question_dinner,question_coffee,question_meat,question_vegetables])
     quiz_food.save()
